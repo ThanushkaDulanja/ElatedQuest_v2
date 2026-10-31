@@ -1,0 +1,4 @@
+node_modules/
+public/css/site.css
+src/db/migrations/
+database/

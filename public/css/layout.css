@@ -1,0 +1,21 @@
+.site-header,
+.site-main,
+.site-footer {
+  width: min(100% - 2rem, var(--content-width));
+  margin-inline: auto;
+}
+
+.site-header,
+.site-footer {
+  padding-block: var(--space-4);
+}
+
+.site-main {
+  min-height: 60vh;
+  padding-block: var(--space-8);
+}
+
+.site-footer {
+  color: var(--color-muted);
+  border-top: 1px solid #dbe1e8;
+}

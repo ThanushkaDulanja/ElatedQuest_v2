@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+node_modules/
+coverage/
+uploads/*
+!uploads/.gitkeep
+public/css/site.css
+.DS_Store
+Thumbs.db
