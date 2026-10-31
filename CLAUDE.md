@@ -1,5 +1,6 @@
 # Project rules
 - Source of truth: docs/SPEC.md and database/schema.sql. Build only what the spec says.
+  Read section 1.5 (Decisions) first: it settles open points.
 - Stack: Node.js + Express, Nunjucks templates, plain CSS, vanilla JavaScript (ES modules),
   MySQL 8 via mysql2. No front-end framework, no ORM, no bundler.
 - Layers: routes -> controller -> service -> repository. SQL lives ONLY in repository.js

@@ -1,14 +1,14 @@
 -- =====================================================================
--- Blog Platform - MySQL 8.0 schema (InnoDB, utf8mb4)
+-- ElatedQuest - MySQL 8.0 schema (InnoDB, utf8mb4)
 -- Run in MySQL Workbench: File > Open SQL Script > Execute (lightning icon).
 -- Then Database > Reverse Engineer to see the EER diagram.
 -- Source of truth for the database. Any change = new file in
 -- src/db/migrations/ AND an update of this file AND docs/SPEC.md.
 -- =====================================================================
 
-CREATE DATABASE IF NOT EXISTS blog_platform
+CREATE DATABASE IF NOT EXISTS elatedquest
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE blog_platform;
+USE elatedquest;
 SET NAMES utf8mb4;
 
 -- ---------------------------------------------------------------------

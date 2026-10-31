@@ -1,8 +1,8 @@
--- Blog Platform - starter data. Run ONCE on a new database, right after schema.sql.
+-- ElatedQuest - starter data. Run ONCE on a new database, right after schema.sql.
 -- (Categories and pages are re-runnable; menu_items and social_links are not,
 -- so running it twice would duplicate them.)
 -- The owner user is NOT seeded here: it is created at runtime from OWNER_EMAIL.
-USE blog_platform;
+USE elatedquest;
 SET NAMES utf8mb4;
 
 -- Keep the category list short (10-15). Use tags for finer topics.
@@ -52,17 +52,17 @@ INSERT INTO menu_items (location, label, url, sort_order) VALUES
 
 -- Social links: replace the URLs with your real profiles in the admin.
 INSERT INTO social_links (platform, label, url, followers_label, show_in_top_bar, show_in_footer, show_in_stay_connected, sort_order) VALUES
-  ('facebook',  'Facebook',  'https://www.facebook.com/yourpage',  NULL, 1, 1, 1, 1),
-  ('instagram', 'Instagram', 'https://www.instagram.com/yourpage', NULL, 1, 1, 1, 2),
-  ('pinterest', 'Pinterest', 'https://www.pinterest.com/yourpage', NULL, 1, 1, 0, 3),
-  ('x',         'X',         'https://x.com/yourpage',             NULL, 1, 1, 0, 4),
-  ('youtube',   'YouTube',   'https://www.youtube.com/@yourpage',  NULL, 1, 1, 0, 5);
+  ('facebook',  'Facebook',  'https://www.facebook.com/elatedquest',  NULL, 1, 1, 1, 1),
+  ('instagram', 'Instagram', 'https://www.instagram.com/elatedquest', NULL, 1, 1, 1, 2),
+  ('pinterest', 'Pinterest', 'https://www.pinterest.com/elatedquest', NULL, 1, 1, 0, 3),
+  ('x',         'X',         'https://x.com/elatedquest',             NULL, 1, 1, 0, 4),
+  ('youtube',   'YouTube',   'https://www.youtube.com/@elatedquest',  NULL, 1, 1, 0, 5);
 
 INSERT INTO site_settings (setting_key, setting_value) VALUES
   ('general', JSON_OBJECT(
-      'siteName', 'Your Blog', 'tagline', 'Stories worth sharing',
-      'contactEmail', 'hello@yourblog.com', 'submissionsEmail', 'submit@yourblog.com',
-      'businessName', 'Your Business Name', 'address', 'Street, City, Country',
+      'siteName', 'ElatedQuest', 'tagline', 'Stories worth sharing',
+      'contactEmail', 'hello@elatedquest.com', 'submissionsEmail', 'submit@elatedquest.com',
+      'businessName', 'ElatedQuest', 'address', 'Street, City, Country',
       'timezone', 'UTC', 'footerBlurb', 'Write two short sentences about your site.')),
   ('editors_can_publish', JSON_OBJECT('value', FALSE)),
   ('blogger_auto_sync',   JSON_OBJECT('value', TRUE)),

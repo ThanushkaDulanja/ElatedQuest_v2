@@ -1,6 +1,6 @@
-# Blog Platform: Product and Build Specification
+# ElatedQuest: Product and Build Specification
 
-Version 2.1 · 30 October 2026 · Written for AI coding agents (Claude Code, OpenAI Codex) and developers.
+Version 2.5 · 31 October 2026 · Written for AI coding agents (Claude Code, OpenAI Codex) and developers.
 
 ## Contents
 
@@ -39,6 +39,7 @@ This is the single source of truth for the website. Every page, rule, table and 
 ```
 # Project rules
 - Source of truth: docs/SPEC.md and database/schema.sql. Build only what the spec says.
+  Read section 1.5 (Decisions) first: it settles open points.
 - Stack: Node.js + Express, Nunjucks templates, plain CSS, vanilla JavaScript (ES modules),
   MySQL 8 via mysql2. No front-end framework, no ORM, no bundler.
 - Layers: routes -> controller -> service -> repository. SQL lives ONLY in repository.js
@@ -62,6 +63,10 @@ This is the single source of truth for the website. Every page, rule, table and 
 | Version | Date | Change | Sections |
 | --- | --- | --- | --- |
 | 1.0 | 28 Oct 2026 | First complete specification (Next.js, PostgreSQL). | All |
+| 2.5 | 31 Oct 2026 | Decision 8 added to section 1.5: application field limits versus database headroom. | 1.5 |
+| 2.4 | 31 Oct 2026 | Database renamed from blog_platform to elatedquest (lowercase, see 4.1). | 3.8, 4.1 |
+| 2.3 | 30 Oct 2026 | Website named ElatedQuest everywhere (title, wireframes, sample addresses, seed data). | All |
+| 2.2 | 30 Oct 2026 | Settled 7 open points from the first agent review (new section 1.5): owner link, title limits, routing, emails, email comparison, post actions, migrations. | 1.5, 4, 5, 8, 12 |
 | 2.1 | 30 Oct 2026 | Merged with the reviewed v1.1 file: Nunjucks templates, empty extension slots, Saved stories and Surprise me; no comment website field; no share counter; Comments and Stories in one Inbox page. | 3, 6, 7, 8 |
 | 2.0 | 29 Oct 2026 | Node.js + MySQL + vanilla stack; ER diagrams and SQL; auxx.me study; comments, ratings, sharing, author pages, social links, menus, About, Contact (messages and stories), DMCA, Image Use, Join Us; all subscription features removed. | All |
 
@@ -78,6 +83,19 @@ This is the single source of truth for the website. Every page, rule, table and 
 | 7 | Reference site | auxx.me is a model for structure and interaction only. Use your own name, logo, text and images. | — |
 | 8 | Hosting | Any Linux VPS or Node host + MySQL 8 + Nginx + PM2 | Managed host: replace PM2/Nginx notes in section 11. |
 | 9 | Subscriptions | None: no newsletter, no comment-reply emails, no subscribers table. | Re-adding later is a new module (section 14). |
+
+### 1.5 Decisions (settled, apply everywhere)
+
+| # | Topic | Decision |
+| --- | --- | --- |
+| 1 | Owner link | Tokens are created only by `npm run owner-link` on the server. The web route `/auth/owner-link` only redeems a valid token (hashed in `login_tokens`, 10 minutes, single use, rate limited). |
+| 2 | Title limits | 120 characters for post titles and story titles, set once in `src/config/constants.js`. The database columns (160 and 200) stay as headroom. |
+| 3 | Routing of /{slug} | Lookup order: reserved slugs and fixed routes, then posts, then pages, then redirects, then 404. Pages cannot be created in the UI, so conflicts come only from posts: creating or renaming a post must reject a reserved slug or any `pages.slug`. The check lives in `src/lib/slug.js`. |
+| 4 | Emails | Story submissions send a receipt to the reader. Contact messages do not (thank-you page only). |
+| 5 | Email comparison | One function `normalizeEmail()` (trim + lowercase) in `src/lib/email.js` is used wherever emails are stored or compared. The first-time commenter rule compares normalized emails and counts approved comments only. |
+| 6 | Post actions | submit: editor or owner, own draft → in_review. publish: owner (editor only if `editors_can_publish` is on), from draft or in_review; “approve” is publish on an in_review post. reject (“Request changes”): owner only, in_review → draft, optional note up to 500 characters in `review_note`. archive: owner only. |
+| 7 | Migrations | `database/schema.sql` is the Workbench script (creates the database, `IF NOT EXISTS` everywhere). `src/db/migrations/001_init.sql` is the same file without the `CREATE DATABASE` and `USE` lines. The runner assumes the database exists, creates `schema_migrations(version, applied_at)` itself first, runs unapplied files in order and records each. Safe on a database already created from `schema.sql`. |
+| 8 | Field limits | The database columns are headroom; the application limits are the working limits. Define them once in `src/config/constants.js` and enforce them in the validators: post and story title 120 (columns 160 and 200), SEO title 60 (column 70), meta description 160 (column 170), excerpt 200 (column 300). Do not change the schema. |
 
 ## 2. Product overview and study of auxx.me
 
@@ -212,7 +230,7 @@ Studied on 29 Oct 2026 (home, a post, Submit an Article, Contact Us, Join Us, DM
 ### 3.5 Project structure
 
 ```
-blog-platform/
+elatedquest/
   server.js                 starts the web app
   worker.js                 starts background jobs
   package.json  .env.example  AGENTS.md  CLAUDE.md
@@ -271,8 +289,8 @@ Secrets live only in `.env` (never in git, the database or the admin UI). `src/c
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| NODE_ENV, PORT, SITE_URL | Yes | Mode, port, public address (https://yourblog.com). |
-| DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME | Yes | MySQL connection (the database is `blog_platform`). |
+| NODE_ENV, PORT, SITE_URL | Yes | Mode, port, public address (https://elatedquest.com). |
+| DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME | Yes | MySQL connection (the database is `elatedquest`). |
 | SESSION_SECRET | Yes | Signs the session cookie. |
 | HASH_SECRET | Yes | Secret mixed into visitor hashes (votes, ratings, rate limits). |
 | OWNER_EMAIL | Yes | The one owner. Change it to recover access. |
@@ -289,11 +307,11 @@ Secrets live only in `.env` (never in git, the database or the admin UI). `src/c
 ### 4.1 Create the database in MySQL Workbench
 
 1. Install MySQL 8.0 and MySQL Workbench. Open a connection to your server (for example root@localhost).
-2. File → Open SQL Script → choose `database/schema.sql` → click the lightning icon to run it. It creates the database `blog_platform` and 24 tables.
+2. File → Open SQL Script → choose `database/schema.sql` → click the lightning icon to run it. It creates the database `elatedquest` and 24 tables. The name is lowercase on purpose: on Linux servers MySQL treats database names as case-sensitive, so `ElatedQuest` and `elatedquest` would be different databases.
 3. Open `database/seed.sql` and run it **once**. It adds categories, static pages, menus, social links and default settings.
-4. To see the diagram: Database → Reverse Engineer → pick `blog_platform` → Next until finished. Workbench draws the EER diagram; arrange it and save the `.mwb` file in `database/`.
-5. Create a limited user for the app (not root): `CREATE USER 'blog_app'@'localhost' IDENTIFIED BY '…'; GRANT SELECT, INSERT, UPDATE, DELETE ON blog_platform.* TO 'blog_app'@'localhost';` Run schema changes with an admin user only.
-6. Later changes: write a numbered file in `src/db/migrations/`, run `npm run migrate`, and update `database/schema.sql`.
+4. To see the diagram: Database → Reverse Engineer → pick `elatedquest` → Next until finished. Workbench draws the EER diagram; arrange it and save the `.mwb` file in `database/`.
+5. Create a limited user for the app (not root): `CREATE USER 'elatedquest_app'@'localhost' IDENTIFIED BY '…'; GRANT SELECT, INSERT, UPDATE, DELETE ON elatedquest.* TO 'elatedquest_app'@'localhost';` Run schema changes with an admin user only.
+6. `npm run migrate` uses `src/db/migrations/001_init.sql`, which is `schema.sql` without the `CREATE DATABASE` and `USE` lines (1.5). Later changes: write a numbered file in `src/db/migrations/`, run `npm run migrate`, and update `database/schema.sql`.
 
 > **Important:** The SQL was checked for table order, keys and references but could not be run against a live MySQL server while writing this spec. Run it in Workbench first; if it reports an error, send the message to the agent and fix `schema.sql` before building on it.
 
@@ -337,7 +355,7 @@ Secrets live only in `.env` (never in git, the database or the admin UI). `src/c
 ### 4.4 Rules
 
 - All times are stored in UTC (`DATETIME`). Set the connection time zone to `+00:00` and convert for display.
-- Emails are stored lowercase and trimmed. Posts and comments are soft-protected: drafts are soft-deleted (`deleted_at`); published posts are archived, never deleted.
+- Emails are stored lowercase and trimmed; `normalizeEmail()` in `src/lib/email.js` does this everywhere. Slugs are checked in `src/lib/slug.js` against the reserved list and `pages.slug` (1.5). Posts and comments are soft-protected: drafts are soft-deleted (`deleted_at`); published posts are archived, never deleted.
 - Counters on `posts` (`view_count`, `comment_count`, `rating_*`) are updated in the same transaction as the change. `scripts/recount.js` (nightly job) recalculates them from source rows to repair any drift.
 - Visitors have no accounts. Votes, ratings and rate limits use `voter_hash = SHA-256(ip + user_agent + HASH_SECRET)`. Raw IPs are never stored with votes or ratings (only the audit log keeps an IP).
 - Foreign keys: deleting a post removes its revisions, views, tags, comments, votes and ratings (CASCADE). Deleting a user keeps their content (SET NULL). An author with posts cannot be deleted (RESTRICT).
@@ -386,7 +404,7 @@ The complete `CREATE TABLE` script is in Appendix B and in `database/schema.sql`
 | --- | --- |
 | A. Google | Button “Continue with Google”. After Google returns, the server requires `email_verified = true` and checks the allowlist (5.4). |
 | B. Email link | User types their email. If it is on the allowlist, the server emails a one-time link valid for 15 minutes. The page always shows the same message so nobody can discover who is invited. |
-| C. Owner command (backstop) | On the server, run `npm run owner-link`. It prints a one-time URL for the owner, valid 10 minutes, single use. It needs hosting or SSH access, so it cannot be reached from the web. Use it only if A and B are both unavailable. |
+| C. Owner command (backstop) | Tokens can only be created by running `npm run owner-link` on the server (hosting or SSH access needed). It prints a one-time URL for the owner. The web route `/auth/owner-link` only redeems a valid token (hashed, 10 minutes, single use, rate limited). Use it only if A and B are both unavailable. |
 
 ### 5.3 Sign-in flow
 
@@ -805,6 +823,8 @@ Every signed-in user edits their own author profile: display name, short bio, av
 
 Editors can edit only their own posts that are in Draft status. A published post can be edited by the owner (and by editors when the setting is ON).
 
+- **Action names and permissions (1.5):** `submit` = editor or owner, own draft → in_review. `publish` = owner (editor only if `editors_can_publish` is on), from draft or in_review; “approve” is publish on an in_review post. `reject` (“Request changes”) = owner only, in_review → draft, optional note up to 500 characters in `review_note`. `archive` = owner only.
+
 ### 8.2 Editor behavior
 
 - **Autosave:** 10 seconds after the last change, saved to the draft fields only. It never changes what is public.
@@ -812,6 +832,7 @@ Editors can edit only their own posts that are in Draft status. A published post
 - **Overwrite protection:** every save sends the `updated_at` the editor loaded. If the database has a newer value, refuse and show “This post was changed by {name} at {time}. Reload to see their changes.”
 - **Preview:** `/aadmin/preview/{id}` renders the real public template with a “Preview” banner and grey ad placeholders. It is visible only to signed-in users who may edit that post.
 - **Images in the body** come only from the media library (so alt text and sizes are guaranteed).
+- **Slug check:** creating or renaming a post rejects a reserved slug or any `pages.slug` (`src/lib/slug.js`). The public lookup order for `/{slug}` is: fixed routes and reserved slugs, posts, pages, redirects, 404.
 
 ### 8.3 Sanitization (mandatory)
 
@@ -859,7 +880,7 @@ Blogger is a mirror. The site's own database is the main copy, so writing is nev
 
 - **Who:** any visitor, no account. Fields: name (required, up to 80), email (required, never shown), text (2 to 2,000 characters, plain text with line breaks; HTML is escaped on output).
 - **Replies:** up to 3 levels; deeper replies attach to the level-3 comment. A reply is a comment with `parent_id`.
-- **Moderation modes** (`site_settings.comments.moderation`): `all` = every comment waits; `first_time` (default) = a commenter whose email already has an approved comment is approved at once, others wait; `none`. A comment always waits if it contains a link, contains a blocklist word, or was sent less than 5 seconds after the page loaded.
+- **Moderation modes** (`site_settings.comments.moderation`): `all` = every comment waits; `first_time` (default) = a commenter whose email (compared with `normalizeEmail()`) already has an approved comment is approved at once, others wait; `none`. A comment always waits if it contains a link, contains a blocklist word, or was sent less than 5 seconds after the page loaded.
 - **Spam controls:** hidden honeypot field (filled = pretend success, store nothing); max 5 comments per 10 minutes per visitor hash; the same text from the same visitor within 24 hours is rejected; links are never clickable (URLs show as plain text).
 - **Display:** approved comments only. Sort Newest (default), Oldest, Most voted. 10 per load with “Load more comments” (JSON). Count shown on cards, in post meta and in the list heading. Avatars are colored initials computed locally.
 - **Votes:** up or down, once per visitor per comment, changeable; adjusts `vote_score` in one transaction.
@@ -882,7 +903,7 @@ Blogger is a mirror. The site's own database is the main copy, so writing is nev
 ### 8.9 Reader story submissions
 
 1. The reader opens `/contact-us`, chooses “Send a story”, reads the terms that appear, fills the form and ticks the terms box.
-2. The server validates (title up to 160, story 100 to 20,000 characters, up to 10 link lines), checks honeypot, minimum fill time of 8 seconds and the limit of 3 per hour per visitor, then stores a `submissions` row (status `new`).
+2. The server validates (title up to 120, story 100 to 20,000 characters, up to 10 link lines), checks honeypot, minimum fill time of 8 seconds and the limit of 3 per hour per visitor, then stores a `submissions` row (status `new`).
 3. The server emails SUBMISSIONS_EMAIL with all details and sends the reader a short “we received your story” email. There are no file attachments, only links, so nothing unsafe is uploaded.
 4. Editors see it in A10. “Convert to draft” sanitizes the text, creates a guest author, creates the draft post, sets `converted_post_id` and marks it accepted. Reject and Spam only change the status.
 5. The post follows the normal lifecycle (8.1). Credit line: “Story by {name}”.
@@ -890,7 +911,7 @@ Blogger is a mirror. The site's own database is the main copy, so writing is nev
 ### 8.10 Contact form
 
 - Fields: name, email, subject (optional), message (10 to 3,000 characters). Honeypot, 8-second minimum, 3 per hour per visitor.
-- `type=message` stores a `contact_messages` row and emails CONTACT_EMAIL; the owner reads and replies in A10 (Messages tab) or by email. `type=story` follows 8.9. Both use one form, one page and one limit.
+- `type=message` stores a `contact_messages` row and emails CONTACT_EMAIL; the owner reads and replies in A10 (Messages tab) or by email. `type=story` follows 8.9. Both use one form, one page and one limit. Only stories get a receipt email; messages show the thank-you page only.
 
 ### 8.11 Social links and menus
 
@@ -1014,7 +1035,7 @@ Every admin route calls `requireRole()` itself. Every route that changes data ch
 | POST | /contact-us | Message or story form (`type` field, 3 per hour). |
 | GET | /api/search?q=&page= | Search JSON (30/min). |
 | GET | /api/health | 200 if app and database respond. |
-| * | /auth/google, /auth/google/callback, /auth/email, /auth/email/verify, /auth/owner-link, /auth/logout | Sign-in routes (5.2). |
+| * | /auth/google, /auth/google/callback, /auth/email, /auth/email/verify, /auth/owner-link, /auth/logout | Sign-in routes (5.2). `/auth/owner-link` only redeems a token created by the server command. |
 
 #### Admin (session + role required)
 
@@ -1145,7 +1166,7 @@ Build in this order. Give the agent one milestone at a time. Each prompt can be 
 
 ### M0 Foundation
 
-**Build:** project skeleton exactly as in 3.5, `npm run migrate` (reads `src/db/migrations`, records files in `schema_migrations`), `001_init.sql` equal to `database/schema.sql`, env validation, MySQL pool with time zone `+00:00`, base layout and CSS tokens, the feature loader `main.js`, `/api/health`, ESLint, Prettier, test runner, `.env.example`.
+**Build:** project skeleton exactly as in 3.5, `npm run migrate` (reads `src/db/migrations`, records files in `schema_migrations`), `001_init.sql` equal to `database/schema.sql` without its `CREATE DATABASE` and `USE` lines (the runner assumes the database exists, creates `schema_migrations` itself first, runs unapplied files in order and records each), env validation, MySQL pool with time zone `+00:00`, base layout and CSS tokens, the feature loader `main.js`, `/api/health`, ESLint, Prettier, test runner, `.env.example`.
 
 **Done when:**
 
@@ -1206,7 +1227,7 @@ Stop and ask if anything in the spec is unclear.
 **Done when:**
 
 - The XSS payloads in 8.3 are removed (unit tests).
-- Editors cannot publish unless the setting is on; submit, approve and request-changes work.
+- Editors cannot publish unless the setting is on; submit, publish and reject (request changes) work; “approve” is publish on an in_review post.
 - Autosave every 10 s; a newer save by someone else shows the conflict message.
 - Publish is blocked until cover + alt, category, slug and meta description are set.
 - Uploads are validated by real type, resized, converted to WebP; SVG and files over 8 MB are rejected.
@@ -1426,16 +1447,16 @@ Run this file in MySQL Workbench (section 4.1). It is identical to `database/sch
 
 ```
 -- =====================================================================
--- Blog Platform - MySQL 8.0 schema (InnoDB, utf8mb4)
+-- ElatedQuest - MySQL 8.0 schema (InnoDB, utf8mb4)
 -- Run in MySQL Workbench: File > Open SQL Script > Execute (lightning icon).
 -- Then Database > Reverse Engineer to see the EER diagram.
 -- Source of truth for the database. Any change = new file in
 -- src/db/migrations/ AND an update of this file AND docs/SPEC.md.
 -- =====================================================================
 
-CREATE DATABASE IF NOT EXISTS blog_platform
+CREATE DATABASE IF NOT EXISTS elatedquest
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE blog_platform;
+USE elatedquest;
 SET NAMES utf8mb4;
 
 -- ---------------------------------------------------------------------
