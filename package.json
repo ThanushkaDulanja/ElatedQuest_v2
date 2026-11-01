@@ -10,14 +10,21 @@
     "start": "node server.js",
     "worker": "node worker.js",
     "migrate": "node src/db/migrate.js",
+    "owner-link": "node scripts/owner-link.js",
     "build:css": "node scripts/build-css.js",
     "lint": "eslint .",
     "format:check": "prettier --check \"*.js\" \"*.json\" \"src/**/*.js\" \"scripts/**/*.js\" \"public/js/**/*.js\" \"public/css/**/*.css\"",
     "test": "node --test"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "csrf-csrf": "^4.0.3",
     "express": "^5.3.0",
+    "express-mysql-session": "^3.0.3",
+    "express-session": "^1.19.0",
+    "google-auth-library": "^11.3.2",
     "mysql2": "^3.24.6",
+    "nodemailer": "^10.3.1",
     "nunjucks": "^3.2.4"
   },
   "devDependencies": {

@@ -1,3 +1,5 @@
+import { normalizeEmail } from "../lib/email.js";
+
 const REQUIRED_VARIABLES = [
   "NODE_ENV",
   "PORT",
@@ -33,10 +35,11 @@ function parsePort(value, name) {
 }
 
 function requireEmail(value, name) {
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+  const email = normalizeEmail(value);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     throw new Error(`${name} must be a valid email address.`);
   }
-  return value.trim().toLowerCase();
+  return email;
 }
 
 function requireUrl(value, name) {

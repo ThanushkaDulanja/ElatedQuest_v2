@@ -49,3 +49,71 @@ test("health endpoint returns 200 and queries its database dependency", async (c
   assert.deepEqual(await response.json(), { status: "ok" });
   assert.equal(checked, true);
 });
+
+test("A1 renders a CSRF token and rejects email-link submissions without it", async (context) => {
+  const app = createApp({
+    sessionMiddleware(request, _response, next) {
+      request.session = { id: "session-for-csrf-test" };
+      next();
+    },
+    auth: {
+      ownerEmail: "owner@example.test",
+      repository: {
+        async findUserById() {
+          return null;
+        },
+        async incrementRateLimit() {
+          return { allowed: true };
+        },
+      },
+      service: {
+        async requestEmailLink() {
+          return { limited: false };
+        },
+        async audit() {},
+      },
+      oauthClient: {},
+      emailer: {},
+    },
+  });
+  const server = app.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  context.after(() => new Promise((resolve) => server.close(resolve)));
+  const baseUrl = `http://127.0.0.1:${server.address().port}`;
+  const page = await fetch(`${baseUrl}/aadmin/login`);
+  assert.equal(page.status, 200);
+  assert.equal(page.headers.get("cache-control"), "no-store");
+  const html = await page.text();
+  const token = html.match(/name="_csrf" value="([^"]+)"/)?.[1];
+  const cookie = page.headers
+    .get("set-cookie")
+    ?.match(/elatedquest\.csrf=[^;]+/)?.[0];
+  assert.ok(token);
+  assert.ok(cookie);
+  assert.match(html, /Continue with Google/);
+  assert.doesNotMatch(html, /password|forgot password|registration/i);
+
+  const rejected = await fetch(`${baseUrl}/auth/email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Cookie: cookie,
+    },
+    body: "email=invite%40example.test",
+  });
+  assert.equal(rejected.status, 403);
+
+  const accepted = await fetch(`${baseUrl}/auth/email`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Cookie: cookie,
+    },
+    body: new URLSearchParams({ email: "invite@example.test", _csrf: token }),
+  });
+  assert.equal(accepted.status, 200);
+  assert.match(
+    await accepted.text(),
+    /If this email is invited, a sign-in link is on its way/,
+  );
+});

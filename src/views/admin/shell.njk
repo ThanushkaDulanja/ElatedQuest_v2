@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Admin · ElatedQuest</title>
+    <link rel="stylesheet" href="/css/admin.css">
+  </head>
+  <body class="admin-shell">
+    <header class="admin-header">
+      <a class="admin-brand" href="/aadmin">ElatedQuest Admin</a>
+      <div class="admin-account"><span>{{ user.display_name or user.email }}</span>
+        <form action="/auth/sign-out" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button type="submit">Sign out</button></form>
+      </div>
+    </header>
+    <main class="admin-main" id="main-content">
+      <h1>Dashboard</h1>
+      <p>Signed in as {{ user.role }}.</p>
+    </main>
+  </body>
+</html>
