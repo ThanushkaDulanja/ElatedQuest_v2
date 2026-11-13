@@ -27,7 +27,7 @@
     "@sentry/browser": "^11.11.0",
     "@sentry/node": "^11.11.0",
     "cookie-parser": "^1.4.7",
-    "csrf-csrf": "^4.0.3",
+    "csrf-csrf": "^4.1.0",
     "express": "^5.3.0",
     "express-mysql-session": "^3.0.3",
     "express-session": "^1.19.0",
