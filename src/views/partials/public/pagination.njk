@@ -1,0 +1,4 @@
+{% if pageCount > 1 %}<nav class="public-pagination" aria-label="Pagination"{% if isHomePage %} data-feature="home-load-more" data-page="{{ page }}" data-page-count="{{ pageCount }}"{% endif %}>
+  {% if page > 1 %}<a class="public-pagination__previous" rel="prev" href="{{ pagePath }}{{ pageSeparator or '?'}}page={{ page - 1 }}">Previous</a>{% endif %}
+  {% if page < pageCount %}<a class="public-pagination__load-more" rel="next" href="{{ pagePath }}{{ pageSeparator or '?'}}page={{ page + 1 }}">Load more stories</a>{% endif %}
+</nav>{% endif %}

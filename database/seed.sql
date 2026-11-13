@@ -1,4 +1,4 @@
--- ElatedQuest - starter data. Run ONCE on a new database, right after schema.sql.
+-- Elated Quest - starter data. Run ONCE on a new database, right after schema.sql.
 -- (Categories and pages are re-runnable; menu_items and social_links are not,
 -- so running it twice would duplicate them.)
 -- The owner user is NOT seeded here: it is created at runtime from OWNER_EMAIL.
@@ -20,15 +20,15 @@ ON DUPLICATE KEY UPDATE description = VALUES(description), sort_order = VALUES(s
 -- Static pages. Edit the text in /aadmin/pages. These are starter outlines only.
 INSERT INTO pages (slug, title, content_html) VALUES
   ('about-us', 'About Us',
-   '<p>Tell readers who you are, what the site covers and why you started it.</p><h2>Our mission</h2><p>One or two sentences.</p><h2>Meet the team</h2><p>Link to your author pages.</p>'),
+   '<p>Elated Quest shares stories, ideas, and perspectives across culture, nature, travel, creativity, and everyday life.</p><h2>Our mission</h2><p>We make room for thoughtful, useful, and entertaining stories from writers and contributors. Each submission is reviewed before it appears on the site.</p><h2>Share your story</h2><p>Have a story to tell? <a href="/contact-us?type=story">Send it to our editors</a>.</p>'),
   ('contact-us', 'Contact Us',
    '<p>We read every message. Use the form below to send a message, or choose Send a story to share your own story. You can also write to us at the email address shown.</p>'),
   ('story-terms', 'Story Submission Terms',
    '<ol><li>Your story must be your own work. If it is not, it must be properly credited.</li><li>Every picture, quote or extract from another source must be referenced.</li><li>Use a clear heading. Keep the story under 2000 words.</li><li>We may edit your story for quality, length and clarity.</li><li>Publishing is at the sole discretion of our editorial team.</li><li>Sending a story is voluntary. You are responsible for the accuracy of what you send.</li></ol>'),
   ('privacy-policy', 'Privacy Policy',
-   '<p>Replace with your privacy policy: analytics, ads and cookies, email collection, comments, services used and a contact address.</p>'),
+   '<p>This policy explains how Elated Quest handles information when you read stories or contact our team. Our privacy practices reflect the features enabled on this site.</p><h2>Information you provide</h2><p>When you leave a comment, send a message, or submit a story, we receive the name, email address, and content you provide. We use a pseudonymous identifier to help prevent abuse and apply submission limits. Your email address is not shown publicly.</p><h2>Cookies and service providers</h2><p>Essential cookies support sign-in security and form protection. Optional analytics and advertising are controlled by the site settings and consent choices where required. Depending on which features are enabled, service providers may include Google sign-in or Blogger, the configured email provider, Plausible analytics, and the configured advertising provider. They receive only information needed to provide those services and apply their own privacy terms.</p><h2>How we use and keep information</h2><p>We use submitted information to publish and moderate comments, review stories, respond to messages, protect the site, and operate enabled services. We keep it while needed for those purposes and may retain records where required for security or legal reasons.</p><h2>Your choices</h2><p>You can ask us to access, correct, or delete information you sent us. For a request, use the Contact Us page. You can also change optional cookie choices from the Cookie settings link when it is available.</p><h2>Contact</h2><p>Questions about this policy? <a href="/contact-us">Contact the Elated Quest team</a>.</p>'),
   ('image-use-policy', 'Image Use Policy',
-   '<p>Explain how images are used and credited, and how a rights holder can ask for a credit change or removal.</p>'),
+   '<p>Images help readers understand and enjoy our stories. Images on Elated Quest may be created by our team, supplied by a contributor, or used with permission or under a license. Where credit details are available, we display the credit with the image.</p><h2>Using images in a submission</h2><p>Only submit images you created or have permission to publish. Include the creator name and source link when a credit is required. Do not remove watermarks or rights notices.</p><h2>Credit, correction, or removal requests</h2><p>If you own an image or represent its rights holder and believe an image needs a credit change or removal, contact us with the story URL, image location, your relationship to the work, and the requested action. We will review the request and follow up.</p><p><a href="/contact-us">Contact us about an image</a>.</p>'),
   ('dmca-removal', 'DMCA and Copyright Removal',
    '<p>Explain how a copyright holder can report content, what information the notice must contain, and how you respond.</p>'),
   ('join-us', 'Join Us',
@@ -60,9 +60,9 @@ INSERT INTO social_links (platform, label, url, followers_label, show_in_top_bar
 
 INSERT INTO site_settings (setting_key, setting_value) VALUES
   ('general', JSON_OBJECT(
-      'siteName', 'ElatedQuest', 'tagline', 'Stories worth sharing',
+      'siteName', 'Elated Quest', 'tagline', 'Stories worth sharing',
       'contactEmail', 'hello@elatedquest.com', 'submissionsEmail', 'submit@elatedquest.com',
-      'businessName', 'ElatedQuest', 'address', 'Street, City, Country',
+      'businessName', 'Elated Quest', 'address', 'Street, City, Country',
       'timezone', 'UTC', 'footerBlurb', 'Write two short sentences about your site.')),
   ('editors_can_publish', JSON_OBJECT('value', FALSE)),
   ('blogger_auto_sync',   JSON_OBJECT('value', TRUE)),

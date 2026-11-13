@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="csrf-token" content="{{ csrfToken }}">
+  <title>{{ post.title }} · ElatedQuest Admin</title>
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/vendor/quill/quill.snow.css">
+</head>
+<body class="admin-shell">
+  <header class="admin-header">
+    <a class="admin-brand" href="/aadmin">ElatedQuest Admin</a>
+    <div class="admin-header__account">
+      <span class="role-badge role-badge--{{ user.role }}">{{ user.role | roleLabel }}</span>
+      <span>{{ user.display_name or user.email }}</span>
+      <form action="/auth/sign-out" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Sign out</button></form>
+    </div>
+  </header>
+  <div class="admin-layout">
+    {% include "admin/_sidebar.njk" %}
+    <main class="admin-main post-editor" data-feature="admin-post-editor" data-post-id="{{ post.id }}" data-read-only="{{ 'true' if readOnly else 'false' }}" data-updated-at="{{ post.updated_at_input }}" data-status="{{ post.status }}" data-editors-can-publish="{{ 'true' if editorsCanPublish else 'false' }}">
+      <div class="editor-topbar">
+        <div class="editor-topbar__identity">
+          <a class="editor-back-link" href="/aadmin">← Posts</a>
+          <span class="status-badge status-badge--{{ post.status }}">{{ post.status | replace('_',' ') | title }}</span>
+          <span class="autosave-status" aria-live="polite">{% if readOnly %}Read only{% else %}Unsaved changes{% endif %}</span>
+        </div>
+        {% if not readOnly %}
+        <div class="editor-topbar__actions">
+          <a class="btn btn--secondary btn--small" href="/aadmin/preview/{{ post.id }}" target="_blank" rel="noopener">Preview</a>
+          <button class="btn btn--secondary btn--small" form="post-form" type="submit" name="manual_save" value="1">Save draft</button>
+          {% if user.role == 'owner' and post.status == 'in_review' %}
+            <form class="editor-action-form" action="/api/admin/posts/{{ post.id }}/publish" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}"><button class="btn btn--primary" data-primary-publish>Approve and publish</button></form>
+          {% elif user.role == 'owner' or editorsCanPublish %}
+            <form class="editor-action-form" action="/api/admin/posts/{{ post.id }}/publish" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}"><button class="btn btn--primary" data-primary-publish>Publish</button></form>
+          {% else %}
+            <form class="editor-action-form" action="/api/admin/posts/{{ post.id }}/submit" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}"><button class="btn btn--primary" type="submit">Submit for review</button></form>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="admin-page__heading editor-title-heading"><h1>Edit post</h1></div>
+      {% if readOnly %}<p class="editor-readonly" role="status">This post is {{ post.status | replace('_',' ') }} and is read-only for your account.</p>{% endif %}
+      <div class="post-editor__layout">
+        <section class="post-editor__main">
+          <form id="post-form" class="post-edit-form" action="/aadmin/posts/{{ post.id }}" method="post">
+            <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+            <input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}">
+            <div class="editor-field editor-field--title">
+              <label class="editor-title-label" for="post-title">Title</label>
+              <input id="post-title" class="editor-title" name="title" maxlength="120" required value="{{ post.title }}"{% if readOnly %} readonly{% endif %}>
+            </div>
+            <div class="editor-field editor-field--slug field field--sm">
+              <label for="post-slug">Slug</label>
+              <div class="editor-slug field-inline"><span>/</span><input id="post-slug" name="slug" maxlength="80" value="{{ post.slug }}"{% if post.published_at and user.role != 'owner' %} readonly{% endif %}{% if readOnly %} readonly{% endif %}></div>
+            </div>
+            {% if post.published_at and user.role == 'owner' %}<label class="editor-inline-check"><input type="checkbox" name="confirm_slug_change" value="1"{% if readOnly %} disabled{% endif %}> Confirm published slug change and redirect old URL</label>{% endif %}
+            {% if user.role == 'editor' %}<p class="editor-author">Author: {{ post.author_name or user.display_name or user.email }}</p>{% endif %}
+            {% if readOnly %}
+              <article class="readonly-post-body"><h2>Post body</h2><div class="post-content">{{ post.content_html | safe }}</div></article>
+            {% else %}
+              <input type="hidden" name="excerpt" value="{{ post.excerpt }}">
+              <div class="editor-body-region">
+                <div class="quill-toolbar" id="post-toolbar" aria-label="Text formatting">
+                  <span class="ql-formats"><button class="btn btn--secondary btn--small ql-bold" aria-label="Bold" type="button"></button><button class="btn btn--secondary btn--small ql-italic" aria-label="Italic" type="button"></button></span>
+                  <span class="ql-formats"><select class="ql-header" aria-label="Heading"><option value="2">H2</option><option value="3">H3</option><option selected></option></select><button class="btn btn--secondary btn--small ql-blockquote" aria-label="Quote" type="button"></button></span>
+                  <span class="ql-formats"><button class="btn btn--secondary btn--small ql-list" value="bullet" aria-label="Bulleted list" type="button"></button><button class="btn btn--secondary btn--small ql-list" value="ordered" aria-label="Numbered list" type="button"></button></span>
+                  <span class="ql-formats"><button class="btn btn--secondary btn--small ql-link" aria-label="Link" type="button"></button><button class="btn btn--secondary btn--small ql-image" aria-label="Insert library image" type="button"></button></span>
+                </div>
+                <label class="visually-hidden" for="editor-body-source">Post body HTML</label>
+                <textarea id="editor-body-source" name="content_html" class="editor-body-source">{{ post.content_html }}</textarea>
+                <div id="quill-editor" class="quill-editor" aria-label="Post body"></div>
+                <div class="image-size-toolbar" data-image-size-toolbar role="group" aria-label="Selected image size" hidden><span>Image size</span><button class="btn btn--secondary btn--small" type="button" data-image-size="small">Small</button><button class="btn btn--secondary btn--small" type="button" data-image-size="medium">Medium</button><button class="btn btn--secondary btn--small" type="button" data-image-size="full">Full</button></div>
+              </div>
+            {% endif %}
+          </form>
+        </section>
+        <aside class="post-editor__sidebar">
+          <details open class="editor-panel">
+            <summary>Publish</summary>
+            <p>Status: {{ post.status | replace('_',' ') | title }}</p>
+            <ul class="publish-checklist" aria-label="Publish checklist"><li data-check="title">Title</li><li data-check="slug">Slug</li><li data-check="cover">Cover image with alt text</li><li data-check="category">Category</li><li data-check="body">Body</li><li data-check="meta">Meta description</li></ul>
+            {% if not readOnly and post.status == 'draft' and (user.role == 'owner' or editorsCanPublish) %}<form class="editor-action-form editor-secondary-action" action="/api/admin/posts/{{ post.id }}/schedule" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}"><label for="scheduled-at">Schedule time ({{ timeZone }})</label><input id="scheduled-at" type="datetime-local" name="scheduled_at" required><button class="btn btn--secondary" type="submit">Schedule post</button></form>{% endif %}
+            <div class="editor-error" role="alert" hidden></div>
+            {% if not readOnly and user.role == 'owner' and post.status == 'in_review' %}<form class="editor-action-form editor-secondary-action" action="/api/admin/posts/{{ post.id }}/reject" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}"><label for="review-note">Request changes note (optional)</label><textarea id="review-note" name="note" maxlength="500"></textarea><button class="btn btn--secondary" type="submit">Request changes</button></form>{% endif %}
+          </details>
+          <details open class="editor-panel">
+            <summary>Category and tags</summary>
+            <div class="field field--md"><label for="category-id">Category</label><select form="post-form" id="category-id" name="category_id"{% if readOnly %} disabled{% endif %}><option value="">Choose a category</option>{% for category in categories %}<option value="{{ category.id }}"{% if post.category_id == category.id %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></div>
+            <div class="field field--md"><label for="post-tags">Tags (comma separated, max 5)</label><input form="post-form" id="post-tags" name="tags" value="{{ post.tag_names }}"{% if readOnly %} readonly{% endif %}></div>
+            {% if user.role == 'owner' %}<div class="field field--md"><label for="author-id">Author</label><select form="post-form" id="author-id" name="author_id"{% if readOnly %} disabled{% endif %}>{% for author in authors %}<option value="{{ author.id }}"{% if post.author_id == author.id %} selected{% endif %}>{{ author.display_name }}</option>{% endfor %}</select></div>
+              <label class="check"><input form="post-form" type="checkbox" name="is_featured" value="1"{% if post.is_featured %} checked{% endif %}{% if readOnly %} disabled{% endif %}> Featured</label>
+              <label class="check"><input form="post-form" type="checkbox" name="is_editor_pick" value="1"{% if post.is_editor_pick %} checked{% endif %}{% if readOnly %} disabled{% endif %}> Editor pick</label>
+            {% endif %}
+            <label class="check"><input form="post-form" type="checkbox" name="allow_comments" value="1"{% if post.allow_comments %} checked{% endif %}{% if readOnly %} disabled{% endif %}> Allow comments</label>
+          </details>
+          <details class="editor-panel">
+            <summary>Cover image</summary>
+            <input form="post-form" type="hidden" id="cover-media-id" name="cover_media_id" value="{{ post.cover_media_id or '' }}">
+            <div class="cover-media-preview">{% if post.cover_url %}<img src="{{ post.cover_url }}" alt="{{ post.cover_alt }}">{% else %}<p>No cover selected</p>{% endif %}</div>
+            <p class="cover-alt">{{ post.cover_alt or 'Alt text required' }}</p>
+            <button type="button" class="btn btn--secondary" data-open-media-picker data-target="cover"{% if readOnly %} disabled{% endif %}>Choose image</button>
+          </details>
+          <details class="editor-panel">
+            <summary>SEO</summary>
+            <div class="field field--lg"><label for="seo-title">SEO title</label><input form="post-form" id="seo-title" name="seo_title" maxlength="60" value="{{ post.seo_title }}"{% if readOnly %} readonly{% endif %}><output data-counter="seo-title">{{ post.seo_title | length }}/60</output></div>
+            <div class="field field--full"><label for="seo-description">Meta description</label><textarea form="post-form" id="seo-description" name="seo_description" maxlength="160"{% if readOnly %} readonly{% endif %}>{{ post.seo_description }}</textarea><output data-counter="seo-description">{{ post.seo_description | length }}/160</output></div>
+            <label for="og-media-id">Social image</label><input form="post-form" type="hidden" id="og-media-id" name="og_media_id" value="{{ post.og_media_id or '' }}"><p data-og-summary>{{ 'Uses cover image' if not post.og_media_id else post.og_url }}</p>
+            <div class="editor-inline-actions"><button type="button" class="btn btn--secondary btn--small" data-open-media-picker data-target="og"{% if readOnly %} disabled{% endif %}>Choose social image</button><button type="button" class="btn btn--secondary btn--small" data-use-cover{% if readOnly %} disabled{% endif %}>Use cover</button><button type="button" class="btn btn--secondary btn--small" data-remove-og{% if readOnly %} disabled{% endif %}>Remove</button></div>
+            <div class="field field--full"><label for="canonical-url">Canonical URL</label><input form="post-form" id="canonical-url" name="canonical_url" type="url" value="{{ post.canonical_url }}" placeholder="https://example.com/post"{% if readOnly %} readonly{% endif %}></div>
+          </details>
+          <details class="editor-panel editor-revisions"><summary>Revisions</summary><ol>{% for revision in revisions %}<li><span>{{ revision.created_at }} · {{ revision.editor_name }}</span>{% if not readOnly %}<form action="/api/admin/posts/{{ post.id }}/revisions/{{ revision.id }}/restore" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="expected_updated_at" value="{{ post.updated_at_input }}"><button class="btn btn--secondary btn--small" type="submit">Restore</button></form>{% endif %}</li>{% else %}<li>No saved revisions yet.</li>{% endfor %}</ol></details>
+          <details class="editor-panel blogger-panel"><summary>Blogger sync</summary>{% if blogger.connected %}<p class="blogger-connection-status" role="status">Connected to blog {{ blogger.blogId }}.</p>{% else %}<p class="blogger-connection-status" role="status">Blogger account is not connected. <a href="/aadmin/settings#blogger">Connect Blogger in Settings</a>.</p>{% endif %}{% if post.blogger_sync_status == 'synced' %}<p data-blogger-status role="status">Synced · <a href="{{ post.blogger_url }}" target="_blank" rel="noopener">Open Blogger post</a></p>{% elif post.blogger_sync_status == 'pending' %}<p data-blogger-status role="status">Synchronization is in progress.</p>{% elif post.blogger_sync_status == 'failed' %}<p data-blogger-status role="alert">Sync failed: {{ post.blogger_last_error }}</p>{% if user.role == 'owner' and blogger.connected %}<form class="blogger-retry-form" action="/api/admin/posts/{{ post.id }}/retry-blogger" method="post" data-blogger-retry><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Retry sync</button></form>{% endif %}{% elif post.status != 'published' %}<p data-blogger-status role="status">This post can be synced after it is published.</p>{% elif blogger.connected %}<p data-blogger-status role="status">This post has not been synced to Blogger.</p>{% if user.role == 'owner' %}<form class="blogger-retry-form" action="/api/admin/posts/{{ post.id }}/retry-blogger" method="post" data-blogger-retry><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Sync now</button></form>{% endif %}{% endif %}</details>
+        </aside>
+      </div>
+      <div class="media-picker" hidden role="dialog" aria-modal="true" aria-labelledby="media-picker-title"><div class="media-picker__dialog"><button type="button" data-close-media-picker class="btn btn--secondary btn--small media-picker__close">Close</button><h2 id="media-picker-title">Choose a library image</h2><p>Images need alt text so readers using assistive technology can understand them.</p><label for="picker-search">Search images</label><input id="picker-search" type="search" data-picker-search><div class="media-grid editor-media-grid" data-picker-results></div><button class="btn btn--secondary btn--small" type="button" data-picker-more hidden>Load more</button></div></div>
+    </main>
+  </div>
+  {% include "partials/sentry.njk" %}
+  <script src="/vendor/quill/quill.js" defer></script>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
+

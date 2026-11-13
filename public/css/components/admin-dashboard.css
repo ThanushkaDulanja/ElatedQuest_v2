@@ -1,0 +1,22 @@
+.admin-main .admin-page__heading h1 { font-size: var(--font-size-h1); }
+.admin-main .post-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.admin-main .post-stat strong { font-size: 1.5rem; }
+.admin-main .post-list-controls { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-3); }
+.admin-main .post-list-controls .admin-tabs { display: flex; flex-wrap: nowrap; gap: var(--space-2); min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; white-space: nowrap; }
+.admin-main .post-list-controls .admin-tabs a { flex: 0 0 auto; color: var(--color-muted); font-size: var(--font-size-base); }
+.admin-main .post-list-controls .admin-tabs a[aria-current="page"] { color: var(--color-ink); background: var(--color-white); }
+.admin-main .post-list-controls form.toolbar-row { display: flex; flex-wrap: nowrap; align-items: center; gap: var(--space-2); width: 100%; margin: 0; }
+.admin-main .post-list-controls .dashboard-search { flex: 1 1 auto; min-width: 0; }
+.admin-main .post-list-controls .dashboard-search input { width: 100%; min-width: 0; min-height: var(--field-height); color: var(--color-ink); background: var(--color-white); }
+.admin-main .post-list-controls .toolbar-row > .btn { flex: 0 0 auto; min-height: var(--button-height); }
+.admin-main .post-suggestions .post-suggestion { display: block; width: 100%; min-height: var(--field-height); padding: var(--space-2) var(--space-3); border: 0; border-bottom: 1px solid var(--color-border); border-radius: 0; color: var(--color-ink); background: var(--color-white); text-align: left; white-space: normal; }
+.admin-main .post-suggestions .post-suggestion[aria-selected="true"], .admin-main .post-suggestions .post-suggestion:hover { color: var(--color-ink); background: var(--color-surface); }
+.admin-main .table-wrap .posts-table { min-width: 60rem; }
+.admin-main .posts-table th { white-space: nowrap; }
+.admin-main .posts-table td.post-actions { display: table-cell; vertical-align: middle; white-space: nowrap; }
+.admin-main .posts-table .post-actions form { display: inline-flex; flex: 0 0 auto; margin: 0; }
+.admin-main .posts-table .post-actions .btn { flex: 0 0 auto; min-height: var(--button-height-small); }
+@media (min-width: 640px) {
+  .admin-main .post-stat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .admin-main .post-list-controls { grid-template-columns: minmax(0, 1fr) minmax(16rem, 21rem); align-items: center; }
+}

@@ -1,0 +1,4 @@
+<div class="public-ad-slot public-ad-slot--{{ adSlot }}" data-feature="ads" data-ad-slot="{{ adSlot }}" aria-label="Advertisement"{% if isOwner %} data-owner-placeholder="true"{% else %} hidden{% endif %}>
+  <span class="public-ad-slot__label">Advertisement</span>
+  {% if isOwner %}<span class="public-ad-slot__placeholder">Preview · {{ adSlot }}</span>{% endif %}
+</div>

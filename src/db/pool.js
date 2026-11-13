@@ -20,3 +20,12 @@ export const databaseConfig = Object.freeze({
 });
 
 export const pool = mysql.createPool(databaseConfig);
+
+pool.on("connection", (connection) => {
+  connection.query("SET time_zone = '+00:00'", (error) => {
+    if (error) {
+      console.error("Unable to set MySQL session time zone to UTC", error.message);
+      connection.destroy();
+    }
+  });
+});

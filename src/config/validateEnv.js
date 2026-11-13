@@ -50,6 +50,25 @@ function requireUrl(value, name) {
   }
 }
 
+function parsePlausibleDomain(value) {
+  const domain = String(value ?? "").trim();
+  if (domain && !/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?(?:,[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?)*$/iu.test(domain)) {
+    throw new Error("PLAUSIBLE_DOMAIN must contain hostnames only, separated by commas.");
+  }
+  return domain;
+}
+
+function parseSentryDsn(value) {
+  const dsn = String(value ?? "").trim();
+  if (!dsn) { return ""; }
+  let parsed;
+  try { parsed = new URL(dsn); } catch { throw new Error("SENTRY_DSN must be a valid URL."); }
+  if (!["https:", "http:"].includes(parsed.protocol) || !parsed.username || parsed.password || parsed.search || parsed.hash) {
+    throw new Error("SENTRY_DSN must be an HTTP(S) Sentry client URL without a password or query.");
+  }
+  return dsn;
+}
+
 export function validateEnv(source) {
   const missing = REQUIRED_VARIABLES.filter((name) => {
     return typeof source[name] !== "string" || source[name].trim() === "";
@@ -92,6 +111,7 @@ export function validateEnv(source) {
       user: source.DB_USER,
       password: source.DB_PASSWORD,
       name: source.DB_NAME,
+      testName: source.DB_TEST_NAME?.trim() || "elatedquest_m0_test",
     }),
     ownerEmail: requireEmail(source.OWNER_EMAIL, "OWNER_EMAIL"),
     google: Object.freeze({
@@ -113,7 +133,9 @@ export function validateEnv(source) {
     encryptionKey,
     uploadDir: source.UPLOAD_DIR,
     uploadsPublicUrl: uploadsUrl.toString().replace(/\/$/, ""),
-    sentryDsn: source.SENTRY_DSN?.trim() || "",
-    plausibleDomain: source.PLAUSIBLE_DOMAIN?.trim() || "",
+    sentryDsn: parseSentryDsn(source.SENTRY_DSN),
+    plausibleDomain: parsePlausibleDomain(source.PLAUSIBLE_DOMAIN),
+    backupDirectory: source.BACKUP_DIR?.trim() || "./backups",
+    backupSecondaryDirectory: source.BACKUP_SECONDARY_DIR?.trim() || "",
   });
 }

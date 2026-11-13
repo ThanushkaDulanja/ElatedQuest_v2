@@ -1,0 +1,2 @@
+{% extends "layouts/public.njk" %}
+{% block content %}<article class="public-page"><h1>{{ post.title }}</h1>{% if post.excerpt %}<p class="public-post-excerpt">{{ post.excerpt }}</p>{% endif %}<div class="public-article-body">{{ content | safe }}</div>{% include "slots/post_end.njk" ignore missing %}</article>{% endblock %}

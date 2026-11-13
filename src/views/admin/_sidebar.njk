@@ -1,0 +1,17 @@
+{% set currentNav = activeNav or section or 'posts' %}
+<aside class="admin-sidebar" aria-label="Admin navigation">
+  <a href="/aadmin"{% if currentNav == 'posts' %} aria-current="page"{% endif %}>Posts</a>
+  <a href="/aadmin/media"{% if currentNav == 'media' %} aria-current="page"{% endif %}>Media</a>
+  <a href="/aadmin/inbox?tab=comments"{% if currentNav == 'comments' %} aria-current="page"{% endif %}>Inbox</a>
+  {% if user.role == 'owner' %}
+    <a href="/aadmin/categories"{% if currentNav == 'categories' %} aria-current="page"{% endif %}>Categories</a>
+    <a href="/aadmin/team"{% if currentNav == 'team' %} aria-current="page"{% endif %}>Team</a>
+    <a href="/aadmin/team/authors"{% if currentNav == 'authors' %} aria-current="page"{% endif %}>Authors</a>
+    <a href="/aadmin/pages"{% if currentNav == 'pages' %} aria-current="page"{% endif %}>Static pages</a>
+  {% endif %}
+  <a href="/aadmin/profile"{% if currentNav == 'profile' %} aria-current="page"{% endif %}>My profile</a>
+  {% if user.role == 'owner' %}
+    <a href="/aadmin/settings"{% if currentNav == 'settings' %} aria-current="page"{% endif %}>Settings</a>
+    <a href="/aadmin/audit"{% if currentNav == 'audit' %} aria-current="page"{% endif %}>Audit log</a>
+  {% endif %}
+</aside>

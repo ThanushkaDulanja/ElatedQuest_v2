@@ -15,5 +15,4 @@ export function registerRoutes(app, controller, requireRole, csrf) {
     csrf.doubleCsrfProtection,
     controller.signOut,
   );
-  app.get("/aadmin", requireRole("editor"), controller.dashboard);
 }

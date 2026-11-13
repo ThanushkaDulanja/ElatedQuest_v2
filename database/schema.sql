@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS authors (
   bio             TEXT            NULL,
   avatar_media_id BIGINT UNSIGNED NULL,
   is_guest        TINYINT(1)      NOT NULL DEFAULT 0,
+  show_on_about   TINYINT(1)      NOT NULL DEFAULT 0,
   created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY uq_authors_slug (slug),
@@ -284,6 +285,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- ---------------------------------------------------------------------
 -- 4. Site structure and settings (editable by the owner, no code change)
+-- Starter static page copy is loaded separately by database/seed.sql and can be edited at /aadmin/pages.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pages (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

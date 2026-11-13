@@ -1,0 +1,43 @@
+{% extends "layouts/public.njk" %}
+{% block content %}
+<h1 class="public-visually-hidden">{{ site.general.siteName }}</h1>
+{% if total %}
+<div class="public-home-frame">
+  <div class="public-home-top">
+    <div class="public-home-main">
+      {% if featured %}
+      <section class="public-home-featured" aria-label="Featured stories">
+        <div class="public-home-featured__leads">
+          {% set post = featured %}{% include "partials/public/home-lead.njk" %}
+          {% for post in companions %}{% if loop.index == 1 %}{% include "partials/public/home-lead.njk" %}{% endif %}{% endfor %}
+        </div>
+        {% if companions.length > 1 %}<div class="public-home-featured__mini">{% for post in companions %}{% if loop.index > 1 %}{% include "partials/public/home-mini.njk" %}{% endif %}{% endfor %}</div>{% endif %}
+      </section>
+      {% endif %}
+      {% if alsoReadingCandidates.length %}<section class="public-people-read" id="people-also-read" aria-labelledby="people-read-heading" data-feature="people-also-read" data-candidates="{{ alsoReadingJson }}">
+        <h2 id="people-read-heading" class="public-section-title">People also read…</h2>
+        <nav class="public-people-read__tabs" aria-label="People also read categories"><a href="/#people-also-read" data-category="" aria-current="page">All</a>{% for category in site.homeCategories %}{% if loop.index <= 6 %}<a href="/category/{{ category.slug }}#people-also-read" data-category="{{ category.slug }}">{{ category.name }}</a>{% endif %}{% endfor %}{% if site.homeCategories.length > 6 %}<details class="public-latest-tabs__more"><summary>More</summary><div>{% for category in site.homeCategories %}{% if loop.index > 6 %}<a href="/category/{{ category.slug }}#people-also-read" data-category="{{ category.slug }}">{{ category.name }}</a>{% endif %}{% endfor %}</div></details>{% endif %}</nav>
+        <div class="public-people-read__leads">{% for post in alsoReadingCandidates %}{% if loop.index <= 2 %}{% include "partials/public/home-lead.njk" %}{% endif %}{% endfor %}</div>
+        <div class="public-people-read__more">{% for post in alsoReadingCandidates %}{% if loop.index > 2 and loop.index <= 18 %}{% include "partials/public/home-mini.njk" %}{% endif %}{% endfor %}</div>
+      </section>{% endif %}
+      {% if sidebar.popularPosts.length %}<section class="public-popular-mobile" aria-label="Popular posts" data-feature="popular-period" data-days="{{ popularDays or 7 }}"><div class="public-popular-mobile__heading"><h2>Popular posts</h2><nav class="public-popular-period" aria-label="Popular post period"><a href="/?popularDays=7#popular-posts" data-days="7"{% if popularDays != 30 %} aria-current="true"{% endif %}>7 days</a><a href="/?popularDays=30#popular-posts" data-days="30"{% if popularDays == 30 %} aria-current="true"{% endif %}>30 days</a></nav></div><div class="public-popular-mobile__scroller public-popular-period-results">{% for post in sidebar.popularPosts %}{% include "partials/public/card.njk" %}{% endfor %}</div></section>{% endif %}
+    </div>
+    {% include "partials/public/sidebar.njk" %}
+  </div>
+  <section class="public-home-latest" id="latest-articles" aria-labelledby="latest-heading">
+    <div class="public-home-latest__heading">
+      <h2 id="latest-heading" class="public-section-title">Latest articles</h2>
+      <nav class="public-latest-tabs" aria-label="Latest article categories">
+        <a href="/#latest-articles" aria-current="page">All</a>
+        {% for category in site.homeCategories %}
+          {% if loop.index <= 9 %}<a href="/category/{{ category.slug }}#latest-articles">{{ category.name }}</a>{% endif %}
+        {% endfor %}
+        {% if site.homeCategories.length > 9 %}<details class="public-latest-tabs__more"><summary>More</summary><div>{% for category in site.homeCategories %}{% if loop.index > 9 %}<a href="/category/{{ category.slug }}#latest-articles">{{ category.name }}</a>{% endif %}{% endfor %}</div></details>{% endif %}
+      </nav>
+    </div>
+    <div class="public-story-list">{% for post in latest %}{% include "partials/public/home-card.njk" %}{% if loop.index % 8 == 0 and ads.enabled and ads.slots.home_feed.enabled %}{% set adSlot = "home_feed" %}{% include "partials/public/ad-slot.njk" %}{% endif %}{% endfor %}</div>
+    {% include "partials/public/pagination.njk" %}
+  </section>
+</div>
+{% else %}<div class="public-home-frame"><p class="public-empty-state">No stories yet.</p></div>{% endif %}
+{% endblock %}

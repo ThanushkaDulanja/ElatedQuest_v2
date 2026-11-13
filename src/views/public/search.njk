@@ -1,0 +1,14 @@
+{% extends "layouts/public.njk" %}
+{% block content %}
+<div class="public-container public-search-layout">
+  <section class="public-search-results" aria-labelledby="search-heading">
+    <h1 id="search-heading">Search stories</h1>
+    <form action="/search" method="get" role="search" class="public-search-form"><label for="search-query">Search</label><div><input id="search-query" type="search" name="q" value="{{ query }}" minlength="2" maxlength="80" aria-describedby="search-help"><button type="submit">Search</button></div><small id="search-help">Enter 2 to 80 characters. Results include published stories.</small></form>
+    {% if not valid %}<p class="public-empty-state">Enter between 2 and 80 characters to search.</p>
+    {% elif total %}<p>{{ total }} results for “{{ query }}”</p><div class="public-story-list">{% for post in results %}<article class="public-card-row"><a class="public-card-row__image-link" href="/{{ post.slug }}">{% if post.cover_url %}<img src="{{ post.cover_url }}" width="{{ post.cover_width or 800 }}" height="{{ post.cover_height or 450 }}" alt="{{ post.cover_alt or '' }}" loading="lazy">{% else %}<span class="public-card__placeholder" aria-hidden="true"></span>{% endif %}</a><div>{% if post.category_name %}<a class="public-card__category" href="/category/{{ post.category_slug }}">{{ post.category_name }}</a>{% endif %}<h2><a href="/{{ post.slug }}">{{ post.titleHtml | safe }}</a></h2><p class="public-card__meta">{% if post.author_name %}{{ post.author_name }} · {% endif %}<time datetime="{{ post.published_at | dateIso }}">{{ post.published_at | formatDate(site.general.timezone) }}</time></p><p class="public-card__excerpt">{{ post.snippetHtml | safe }}</p></div></article>{% endfor %}</div>
+    {% else %}<p class="public-empty-state">No stories found for “{{ query }}”. Try another search.</p><h2>Popular stories</h2>{% if emptySidebar.popularPosts.length %}<div class="public-story-list">{% for post in emptySidebar.popularPosts %}{% include "partials/public/card-row.njk" %}{% endfor %}</div>{% endif %}<h2>Categories</h2><ul class="public-search-categories">{% for category in emptySidebar.popularCategories %}<li><a href="/category/{{ category.slug }}">{{ category.name }}</a></li>{% endfor %}</ul>
+    {% endif %}
+    {% if valid and total %}{% set pagePath = "/search?q=" + query | urlencode %}{% set pageSeparator = "&" %}{% include "partials/public/pagination.njk" %}{% endif %}
+  </section>
+</div>
+{% endblock %}

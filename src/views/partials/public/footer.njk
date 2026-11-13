@@ -1,0 +1,16 @@
+<footer class="public-footer">
+  {% if sidebar and (sidebar.editorPicks.length or sidebar.popularPosts.length or sidebar.popularCategories.length) %}
+  <div class="public-container public-footer__editorial">
+    {% if sidebar.editorPicks.length %}<section><h2>Editor picks</h2>{% for post in sidebar.editorPicks %}{% set sidebarRank = false %}{% include "partials/public/card-row.njk" %}{% endfor %}</section>{% endif %}
+    {% if sidebar.popularPosts.length %}<section class="public-footer__popular"><h2>Popular posts</h2>{% for post in sidebar.popularPosts %}{% set sidebarRank = loop.index %}{% include "partials/public/card-row.njk" %}{% endfor %}</section>{% endif %}
+    {% if sidebar.popularCategories.length %}<section class="public-footer__categories"><h2>Popular categories</h2><ul>{% for category in sidebar.popularCategories %}<li><a href="/category/{{ category.slug }}">{{ category.name }}</a><strong>{{ category.post_count }}</strong></li>{% endfor %}</ul></section>{% endif %}
+  </div>
+  {% endif %}
+  <div class="public-container public-footer__grid">
+    <div class="public-footer__brand"><a class="public-brand" href="/">{{ site.general.siteName }}</a><h2>About us</h2><p>{{ site.general.footerBlurb or "Fresh stories, ideas, and perspectives to explore." }}</p>{% if site.general.contactEmail %}<p class="public-footer__contact">Contact us: <a href="mailto:{{ site.general.contactEmail }}">{{ site.general.contactEmail }}</a></p>{% endif %}</div>
+    <div class="public-footer__follow"><h2>Follow us</h2>{% if site.footerSocial.length %}<nav class="public-social" aria-label="Follow us">{% for item in site.footerSocial %}<a href="{{ item.href }}" target="_blank" rel="me noopener" aria-label="{{ item.label }}"><svg aria-hidden="true"><use href="/img/social-icons.svg#{{ item.icon }}"></use></svg></a>{% endfor %}</nav>{% else %}<p>Visit again for more from {{ site.general.siteName }}.</p>{% endif %}</div>
+    <div class="public-footer__menu-wrap"><h2>Explore</h2>{% if site.footerMenu.length %}<nav class="public-footer-menu" aria-label="Footer links">{% for item in site.footerMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}</nav>{% endif %}</div>
+  </div>
+  <div class="public-footer__bottom"><div class="public-container"><span>© {{ currentYear }} {{ site.general.siteName }}</span>{% if site.footerMenu.length %}<nav aria-label="Footer quick links">{% for item in site.footerMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}{% if ads and ads.enabled %}<a href="#cookie-settings" data-open-consent>Cookie settings</a>{% endif %}</nav>{% elif ads and ads.enabled %}<nav aria-label="Cookie settings"><a href="#cookie-settings" data-open-consent>Cookie settings</a></nav>{% endif %}</div></div>
+  {% include "slots/footer_extra.njk" ignore missing %}
+</footer>

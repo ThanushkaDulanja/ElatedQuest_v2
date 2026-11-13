@@ -1,0 +1,1 @@
+<nav class="public-breadcrumb" aria-label="Breadcrumb"><ol>{% for item in items %}<li>{% if not loop.last and item.href %}<a href="{{ item.href }}">{{ item.label }}</a>{% else %}<span aria-current="page">{{ item.label }}</span>{% endif %}</li>{% endfor %}</ol></nav>

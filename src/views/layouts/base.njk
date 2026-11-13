@@ -6,6 +6,7 @@
     <meta name="description" content="{{ description or 'Stories from ElatedQuest.' }}">
     <title>{% block title %}ElatedQuest{% endblock %}</title>
     <link rel="stylesheet" href="/css/site.css">
+    {% include "partials/sentry.njk" %}
     <script type="module" src="/js/main.js"></script>
   </head>
   <body>

@@ -3,8 +3,12 @@
 !.env.example
 node_modules/
 coverage/
+/playwright-report/
+/test-results/
+/allure-results/
 uploads/*
 !uploads/.gitkeep
+/backups/
 public/css/site.css
 .DS_Store
 Thumbs.db

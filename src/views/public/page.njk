@@ -1,0 +1,4 @@
+{% extends "layouts/public.njk" %}
+{% block content %}<article class="public-page"><h1>{{ page.title }}</h1><div class="public-article-body">{{ page.content_html | safe }}</div>
+{% if page.slug == 'about-us' and aboutAuthors.length %}<section class="public-about-team" aria-labelledby="about-team-heading"><h2 id="about-team-heading">Meet the team</h2><div class="public-about-team__list">{% for author in aboutAuthors %}<article class="public-about-team__member">{% if author.avatar_url %}<img data-card-image src="{{ author.avatar_url }}" width="96" height="96" alt="{{ author.avatar_alt or author.display_name }}" loading="lazy">{% else %}<span class="public-about-team__initials" aria-hidden="true">{{ author.initials }}</span>{% endif %}<div><h3><a href="/author/{{ author.slug }}">{{ author.display_name }}</a></h3>{% if author.bio %}<p>{{ author.bio }}</p>{% endif %}</div></article>{% endfor %}</div></section>{% endif %}
+</article>{% endblock %}

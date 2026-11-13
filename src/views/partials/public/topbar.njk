@@ -1,0 +1,12 @@
+{% if not isHomePage and (site.topSocial.length or site.topMenu.length) %}
+  <div class="public-topbar">
+    <div class="public-container public-topbar__inner">
+      <nav class="public-social" aria-label="Social links">
+        {% for item in site.topSocial %}<a href="{{ item.href }}" target="_blank" rel="me noopener" aria-label="{{ item.label }}"><svg aria-hidden="true"><use href="/img/social-icons.svg#{{ item.icon }}"></use></svg></a>{% endfor %}
+      </nav>
+      <nav class="public-top-menu" aria-label="Quick links">
+        {% for item in site.topMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}
+      </nav>
+    </div>
+  </div>
+{% endif %}

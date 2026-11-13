@@ -1,0 +1,2 @@
+{% extends "layouts/public.njk" %}
+{% block content %}<section class="public-not-found"><p class="public-error-code">{{ status }}</p><h1>{% if status == 403 %}Access denied{% else %}Something went wrong{% endif %}</h1><p>{% if status == 403 %}You don’t have permission to view this page.{% else %}Please try again. If the problem continues, share this request ID with the site owner: <code>{{ requestId }}</code>{% endif %}</p><p><a href="/">Return to {{ site.general.siteName }}</a></p></section>{% endblock %}

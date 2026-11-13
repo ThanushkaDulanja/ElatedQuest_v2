@@ -1,0 +1,9 @@
+{% extends "layouts/public.njk" %}
+{% block content %}
+<section class="public-container public-saved" data-feature="saved-stories" aria-labelledby="saved-heading">
+  <h1 id="saved-heading">Saved stories</h1>
+  <noscript><p>Enable JavaScript to view stories saved in this browser.</p></noscript>
+  <p data-saved-empty hidden>No saved stories on this device yet. Save stories from their article pages.</p>
+  <div class="public-story-list" data-saved-list></div>
+</section>
+{% endblock %}

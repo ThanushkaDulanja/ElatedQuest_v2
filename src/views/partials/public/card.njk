@@ -1,0 +1,10 @@
+<article class="public-card{% if cardVariant %} public-card--{{ cardVariant }}{% endif %}">
+  <a class="public-card__link" href="/{{ post.slug }}">
+    {% if post.cover_url %}<img data-card-image class="public-card__image" src="{{ post.cover_url }}"{% if post.cover_srcset %} srcset="{{ post.cover_srcset }}" sizes="{{ post.cover_sizes or '100vw' }}"{% endif %} width="{{ post.cover_width or 800 }}" height="{{ post.cover_height or 450 }}" alt="{{ post.cover_alt or '' }}" loading="lazy">{% else %}<span class="public-card__placeholder" aria-hidden="true"></span>{% endif %}
+    {% if cardVariant != "featured" %}<h2>{{ post.title }}</h2>{% endif %}
+  </a>
+  {% if cardVariant == "featured" %}<div class="public-card__overlay">{% if post.category_name %}<a class="public-card__category" href="/category/{{ post.category_slug }}">{{ post.category_name }}</a>{% endif %}<h2><a href="/{{ post.slug }}">{{ post.title }}</a></h2><p class="public-card__meta">{% if post.author_name %}{{ post.author_name }} · {% endif %}<time datetime="{{ post.published_at | dateIso }}">{{ post.published_at | formatDate(site.general.timezone) }}</time> · {{ post.view_count }} views · {{ post.comment_count }} comments</p></div>
+  {% else %}{% if post.category_name %}<a class="public-card__category" href="/category/{{ post.category_slug }}">{{ post.category_name }}</a>{% endif %}{% endif %}
+  {% if post.author_name or post.published_at %}<p class="public-card__meta">{% if post.author_name %}{{ post.author_name }}{% endif %}{% if post.published_at %}{% if post.author_name %} · {% endif %}<time datetime="{{ post.published_at | dateIso }}">{{ post.published_at | formatDate(site.general.timezone) }}</time>{% endif %}</p>{% endif %}
+  {% if post.excerpt and cardVariant != "featured" %}<p class="public-card__excerpt">{{ post.excerpt }}</p>{% endif %}
+</article>

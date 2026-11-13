@@ -1,0 +1,37 @@
+{% extends "layouts/public.njk" %}
+{% block content %}
+<section class="public-container public-contact" aria-labelledby="contact-heading">
+  <h1 id="contact-heading">Contact us</h1>
+  {% if page and page.content_html %}<div class="public-article-body">{{ page.content_html | safe }}</div>{% else %}<p>Contact the Elated Quest team, or share a story for review.</p>{% endif %}
+  <section class="public-contact__details" aria-label="Contact details">
+    {% if site.general.businessName %}<p><strong>Business name:</strong> {{ site.general.businessName }}</p>{% endif %}
+    {% if site.general.address %}<p><strong>Address:</strong></p><address>{{ site.general.address }}</address>{% endif %}
+    {% if site.general.contactEmail %}<p><strong>Email:</strong> <a href="mailto:{{ site.general.contactEmail }}">{{ site.general.contactEmail }}</a></p><p><a class="public-contact__email-link" href="mailto:{{ site.general.contactEmail }}">Email us</a></p>{% endif %}
+  </section>
+  <nav class="public-contact__switch" aria-label="Choose contact form"><a href="/contact-us?type=message"{% if type != 'story' %} aria-current="page"{% endif %}>Send a message</a><a href="/contact-us?type=story"{% if type == 'story' %} aria-current="page"{% endif %}>Send a story</a></nav>
+  {% if error %}<p class="public-contact__error" role="alert">{{ error }}</p>{% endif %}
+  {% if type == 'story' %}
+  <form class="public-contact-form" id="contact-form" action="/contact-us" method="post">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="type" value="story">
+    <label>Name <input name="name" maxlength="80" value="{{ formValues.name or '' }}" required autocomplete="name"></label>
+    <label>Email <input name="email" type="email" maxlength="190" value="{{ formValues.email or '' }}" required autocomplete="email"></label>
+    <label>Story title <input name="title" maxlength="120" value="{{ formValues.title or '' }}" required></label>
+    <label>Your story <textarea name="body" minlength="100" maxlength="20000" rows="12" required>{{ formValues.body or '' }}</textarea><small>100 to 20,000 characters.</small></label>
+    <label>Story links <textarea name="links" rows="4" placeholder="One full https:// link per line">{{ formValues.links or '' }}</textarea><small>Up to 10 links. No file attachments.</small></label>
+    <label class="public-contact-form__trap" aria-hidden="true">Website <input name="honeypot" tabindex="-1" autocomplete="off"></label>
+    <label class="public-contact-form__terms"><input type="checkbox" name="terms" required{% if formValues.terms == 'on' %} checked{% endif %}> I have read and accept the <a href="/story-terms">story terms</a>.</label>
+    <button type="submit">Send story</button>
+  </form>
+  {% else %}
+  <form class="public-contact-form" id="contact-form" action="/contact-us" method="post">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="type" value="message">
+    <label>Name <input name="name" maxlength="80" value="{{ formValues.name or '' }}" required autocomplete="name"></label>
+    <label>Email <input name="email" type="email" maxlength="190" value="{{ formValues.email or '' }}" required autocomplete="email"></label>
+    <label>Subject <input name="subject" maxlength="200" value="{{ formValues.subject or '' }}"></label>
+    <label>Message <textarea name="message" minlength="10" maxlength="3000" rows="8" required>{{ formValues.message or '' }}</textarea></label>
+    <label class="public-contact-form__trap" aria-hidden="true">Website <input name="honeypot" tabindex="-1" autocomplete="off"></label>
+    <button type="submit">Send message</button>
+  </form>
+  {% endif %}
+</section>
+{% endblock %}

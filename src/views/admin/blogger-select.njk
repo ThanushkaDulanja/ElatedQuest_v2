@@ -1,0 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Choose Blogger blog · ElatedQuest Admin</title><link rel="stylesheet" href="/css/site.css"></head>
+<body class="admin-shell">
+  <header class="admin-header"><a class="admin-brand" href="/aadmin">ElatedQuest Admin</a><div class="admin-header__account"><span class="role-badge role-badge--{{ user.role }}">{{ user.role | roleLabel }}</span><span>{{ user.display_name or user.email }}</span><form action="/auth/sign-out" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Sign out</button></form></div></header>
+  <div class="admin-layout">{% include "admin/_sidebar.njk" %}<main class="admin-main"><div class="admin-page__heading"><h1>Connect Blogger</h1></div>
+    {% if error %}<p class="flash-message flash-message--error" role="alert">{{ error }}</p>{% endif %}
+    {% if blogs.length %}<section class="admin-card"><h2>Choose a blog</h2><p>Posts will sync to the selected blog.</p><form class="form-grid blogger-select-form" action="/api/admin/blogger/select" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><div class="field field--full"><label for="blog-id">Blogger blog</label><select id="blog-id" name="blog_id" required>{% for blog in blogs %}<option value="{{ blog.id }}">{{ blog.name }}{% if blog.url %} · {{ blog.url }}{% endif %}</option>{% endfor %}</select></div><div class="form-actions field--full"><button class="btn btn--primary" type="submit">Connect selected blog</button><a class="btn btn--secondary" href="/aadmin/settings#blogger">Cancel</a></div></form></section>{% else %}<p><a class="btn btn--secondary" href="/aadmin/settings#blogger">Return to Settings</a></p>{% endif %}
+  </main></div>
+</body>
+</html>

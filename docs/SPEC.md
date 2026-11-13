@@ -1,6 +1,6 @@
 # ElatedQuest: Product and Build Specification
 
-Version 2.5 · 31 October 2026 · Written for AI coding agents (Claude Code, OpenAI Codex) and developers.
+Version 2.27 · 12 November 2026 · Written for AI coding agents (Claude Code, OpenAI Codex) and developers.
 
 ## Contents
 
@@ -62,10 +62,32 @@ This is the single source of truth for the website. Every page, rule, table and 
 
 | Version | Date | Change | Sections |
 | --- | --- | --- | --- |
+| 2.27 | 12 Nov 2026 | Widen the desktop homepage composition to match the supplied reference while retaining Elated Quest branding, configured content, consent rules, and mobile/tablet layouts. | 6.1 |
+| 2.26 | 7 Nov 2026 | Fill the 18-card People Also Read layout by cycling available published posts; new published posts replace repeated fillers. | 6.1 |
+| 2.25 | 7 Nov 2026 | Add a consent-gated 324×250 homepage sidebar promoted-content placement beneath Stay Connected; no database migration, uses existing social settings and ad configuration. | 6.1, 8.12 |
+| 2.24 | 7 Nov 2026 | M8 ads settings, four reserved placements, consent gating, lazy loading, CSP, owner placeholders and generated ads.txt completed and verified. | 8.12, 12 |
+| 2.23 | 7 Nov 2026 | M6 tabs, reader submissions, contact messages, social and menu editor, saved stories and random-story routes completed and verified; M8 Ads next. | 6.1, 6.5, 8.5, 8.9–8.11, 12 |
+| 2.22 | 7 Nov 2026 | M5 comments, ratings, votes, share/save controls and A9 moderation completed and verified; M6/M8 remain next. | 6, 8.5–8.8, 12 |
+| 2.21 | 7 Nov 2026 | Homepage scope expanded by owner to match Auxx composition, including M6 People Also Read/social rail and M8 ad slots; execute M5, M6, then M8 sequentially. Retain Elated Quest brand and content. | 6.1, 6.5, 12 |
+| 2.20 | 7 Nov 2026 | Homepage geometry, card metadata placement and editorial footer align to measured Auxx layout while retaining Elated Quest data and M4 scope. | 6.1, 6.5 |
+| 2.19 | 7 Nov 2026 | Homepage wireframe alignment targets and public page cache development switch. | 3.3, 6.1, 6.5 |
+| 2.18 | 7 Nov 2026 | Public display name is “Elated Quest”; the internal app and database identifier remains `elatedquest`. | 2.3, 6 |
+| 2.15 | 5 Nov 2026 | M4 foundation: add public site layout, shared site data and static-page routing. | 6, 9, 10.2 |
+| 2.16 | 5 Nov 2026 | M4 content pages: home, post, category, tag, author and search routes, reusable public cards, pagination and sidebar blocks. | 6, 9, 10.1 |
+| 2.17 | 7 Nov 2026 | M4 behavior: public view counter, rendered-page cache and invalidation, and public-template admin preview. | 3.3, 6, 9, 10.2 |
+| 2.14 | 5 Nov 2026 | M3 final review: make the About page author visibility column an additive migration. | 1.5, 4.3 |
+| 2.13 | 5 Nov 2026 | Owner can manually sync an already-published post after connecting Blogger. | 7.2, 7.3, 8.4 |
+| 2.12 | 5 Nov 2026 | M3 stabilization: role display labels, Blogger sync, post image sizing, and sidebar scrolling. Stored authorization role IDs stay `owner`/`editor`. | 1.5, 5, 7.3, 7.6, 8.4, 12 |
+| 2.11 | 4 Nov 2026 | Added shared admin design tokens, form, button, and table conventions with contrast checks. | 3.7 |
+| 2.10 | 4 Nov 2026 | Added dashboard post suggestions and clarified editor image, sidebar, and upload behavior. | 7.2, 7.3, 7.4, 9 |
+| 2.9 | 4 Nov 2026 | Owner can republish an edited published post; its published status and original publish date remain. | 1.5, 8.1 |
+| 2.8 | 3 Nov 2026 | A3 toolbar has no table button; the Quill core build does not provide one. | 7.3 |
+| 2.7 | 3 Nov 2026 | Added owner-only Categories admin page (A13). | 7.13 |
+| 2.6 | 2 Nov 2026 | Added `authors.show_on_about` for team visibility on About Us. | 4.3, 6.6, 7.12 |
 | 1.0 | 28 Oct 2026 | First complete specification (Next.js, PostgreSQL). | All |
 | 2.5 | 31 Oct 2026 | Decision 8 added to section 1.5: application field limits versus database headroom. | 1.5 |
 | 2.4 | 31 Oct 2026 | Database renamed from blog_platform to elatedquest (lowercase, see 4.1). | 3.8, 4.1 |
-| 2.3 | 30 Oct 2026 | Website named ElatedQuest everywhere (title, wireframes, sample addresses, seed data). | All |
+| 2.3 | 30 Oct 2026 | Initial product name was ElatedQuest. Public branding now uses “Elated Quest”; `elatedquest` remains the internal app and database identifier. | Public site, 3.8, 6 |
 | 2.2 | 30 Oct 2026 | Settled 7 open points from the first agent review (new section 1.5): owner link, title limits, routing, emails, email comparison, post actions, migrations. | 1.5, 4, 5, 8, 12 |
 | 2.1 | 30 Oct 2026 | Merged with the reviewed v1.1 file: Nunjucks templates, empty extension slots, Saved stories and Surprise me; no comment website field; no share counter; Comments and Stories in one Inbox page. | 3, 6, 7, 8 |
 | 2.0 | 29 Oct 2026 | Node.js + MySQL + vanilla stack; ER diagrams and SQL; auxx.me study; comments, ratings, sharing, author pages, social links, menus, About, Contact (messages and stories), DMCA, Image Use, Join Us; all subscription features removed. | All |
@@ -93,9 +115,10 @@ This is the single source of truth for the website. Every page, rule, table and 
 | 3 | Routing of /{slug} | Lookup order: reserved slugs and fixed routes, then posts, then pages, then redirects, then 404. Pages cannot be created in the UI, so conflicts come only from posts: creating or renaming a post must reject a reserved slug or any `pages.slug`. The check lives in `src/lib/slug.js`. |
 | 4 | Emails | Story submissions send a receipt to the reader. Contact messages do not (thank-you page only). |
 | 5 | Email comparison | One function `normalizeEmail()` (trim + lowercase) in `src/lib/email.js` is used wherever emails are stored or compared. The first-time commenter rule compares normalized emails and counts approved comments only. |
-| 6 | Post actions | submit: editor or owner, own draft → in_review. publish: owner (editor only if `editors_can_publish` is on), from draft or in_review; “approve” is publish on an in_review post. reject (“Request changes”): owner only, in_review → draft, optional note up to 500 characters in `review_note`. archive: owner only. |
-| 7 | Migrations | `database/schema.sql` is the Workbench script (creates the database, `IF NOT EXISTS` everywhere). `src/db/migrations/001_init.sql` is the same file without the `CREATE DATABASE` and `USE` lines. The runner assumes the database exists, creates `schema_migrations(version, applied_at)` itself first, runs unapplied files in order and records each. Safe on a database already created from `schema.sql`. |
+| 6 | Post actions | submit: editor or owner, own draft → in_review. publish: owner (editor only if `editors_can_publish` is on), from draft or in_review; owner may also republish an edited published post while keeping its original `published_at`; “approve” is publish on an in_review post. reject (“Request changes”): owner only, in_review → draft, optional note up to 500 characters in `review_note`. archive: owner only. |
+| 7 | Migrations | `database/schema.sql` is the Workbench script (creates the database, `IF NOT EXISTS` everywhere). `src/db/migrations/001_init.sql` is the initial schema without the `CREATE DATABASE` and `USE` lines. Later schema changes use new numbered migration files and update the Workbench script. The runner assumes the database exists, creates `schema_migrations(version, applied_at)` itself first, runs unapplied files in order and records each. Migrations that may encounter a database initialized from the current Workbench schema must safely detect already-present objects. |
 | 8 | Field limits | The database columns are headroom; the application limits are the working limits. Define them once in `src/config/constants.js` and enforce them in the validators: post and story title 120 (columns 160 and 200), SEO title 60 (column 70), meta description 160 (column 170), excerpt 200 (column 300). Do not change the schema. |
+| 9 | Role display names | Display `owner` as “Admin” and `editor` as “Content Moderator”. Keep stored role identifiers, access checks, API values, and OWNER_EMAIL behavior unchanged. |
 
 ## 2. Product overview and study of auxx.me
 
@@ -282,6 +305,7 @@ elatedquest/
 - **Feature modules:** `tabs-filter`, `load-more`, `also-reading`, `progress-bar`, `share`, `rating`, `comments`, `comment-vote`, `consent`, `ads`, `view-counter`, `copy-link`, `save-post`, `lazy-img`. Each stays under about 150 lines.
 - **No inline scripts or `onclick` attributes** (our Content-Security-Policy forbids them). Fetch calls send the CSRF token from a `<meta>` tag.
 - **CSS:** design tokens (colors, spacing, font sizes) are variables in `base.css`; breakpoints at 640 px and 1024 px; one file per component.
+- **Admin UI:** use the shared Nunjucks macros in `admin/_ui-macros.njk` for page headers, fields, field rows, form actions, and table actions. Use `.form-grid`, `.field--{xs,sm,md,lg,full}`, `.field-inline`, `.check`, `.toolbar-row`, `.form-actions`, `.btn` variants, `.table-wrap`, and `.table-actions` rather than page-specific control styling. The admin type scale is 14 px base, 12 px help, 13 px labels, 13.5 px tables/buttons, and 22/17/15 px headings. Controls are 36 px high (30 px small), spacing uses 4/8/12/16/24/32 px, and keyboard focus is always visible. Text and status color pairs are checked by `src/lib/design-tokens.test.js` and must meet WCAG AA contrast (4.5:1).
 
 ### 3.8 Environment variables
 
@@ -301,6 +325,8 @@ Secrets live only in `.env` (never in git, the database or the admin UI). `src/c
 | ENCRYPTION_KEY | Yes | 32-byte base64 key that encrypts the Blogger refresh token. |
 | UPLOAD_DIR, UPLOADS_PUBLIC_URL | Yes | Where images are stored and the public address they are served from. |
 | SENTRY_DSN, PLAUSIBLE_DOMAIN | No | Error reporting and analytics. |
+| BACKUP_DIR | No | Local encrypted database backup directory (defaults to `./backups`). |
+| BACKUP_SECONDARY_DIR | No | Separate durable copy destination for encrypted database backups and nightly image snapshots. Required before the worker backup can succeed. |
 
 ## 4. Data model (MySQL)
 
@@ -330,7 +356,7 @@ Secrets live only in `.env` (never in git, the database or the admin UI). `src/c
 | Table | Purpose and key points |
 | --- | --- |
 | users | The allowlist. email (unique), role (owner/editor), status (invited/active/disabled). |
-| authors | Public bylines and author pages. Optional link to a user; `is_guest` for reader-submitted stories. |
+| authors | Public bylines and author pages. Optional link to a user; `is_guest` for reader-submitted stories; `show_on_about` controls About Us visibility. |
 | login_tokens | Hashed one-time tokens for email sign-in links and the owner command. |
 | sessions | Login sessions (created by express-mysql-session). |
 | media | Uploaded images: alt text, credit text and link, size, uploader. |
@@ -370,7 +396,7 @@ Secrets live only in `.env` (never in git, the database or the admin UI). `src/c
 | blogger_auto_sync | { value: true } |
 | comments | { moderation: all \| first_time \| none, maxDepth: 3, closeAfterDays: 0, blocklist: [] } |
 | share_networks | Ordered list: facebook, x, pinterest, whatsapp, linkedin, reddit, telegram, email, copy. |
-| ads | { provider, publisherId, slots: { home_feed, post_after_p3, post_end, post_sidebar } } |
+| ads | { provider, publisherId, slots: { home_feed, home_sidebar, post_after_p3, post_end, post_sidebar } } |
 
 The complete `CREATE TABLE` script is in Appendix B and in `database/schema.sql`.
 
@@ -477,17 +503,20 @@ Numbered circles on each wireframe match the numbered rows under it. Sketches sh
 | --- | --- | --- |
 | 1 | Top bar | Left: social icons from `social_links` (those with “top bar” on). Right: the `top` menu (Image Use Policy, Privacy Policy, About Us, Contact Us). Icons without a URL are hidden. |
 | 2 | Header | Logo to `/`, category navigation (`show_in_nav` categories, max 6 then “More”), and the search icon. Sticky on desktop. No extra call-to-action button. |
-| 3 | Featured area | Big featured post (`is_featured`, else newest) plus 2 smaller picks (next newest featured/editor picks). Shows category, title, author, date, views, comments. |
-| 4 | People also read… | Category tabs (All + top categories, “More” menu). The server sends 12 candidates per tab; the browser removes posts already in `localStorage.readPosts`, shuffles, shows 4. Fewer than 4 left: fill with newest unread. None: hide the row. Tabs are real links to category pages (work without JavaScript). |
-| 5 | Latest articles | Same tabs. List rows: thumbnail, category, title, author, date, view count, comment count, 2-line excerpt. 10 per page. |
+| 3 | Featured area | Show newest featured post (else newest published) and next featured/editor pick as equal lead cards in 2 columns. Each lead cover measures 324×163 px at a 1280 px viewport; scale proportionally below that width. Place title under cover, then author, date and a comment-count badge; show a 3-line excerpt. Show the third pick below as a compact 96×68 px thumbnail row. Do not add the deferred People also read heading or category tabs. |
+| 4 | People also read… | Category tabs (All + top categories, “More” menu). Show 2 lead cards and 16 compact cards. The browser removes posts already in `localStorage.readPosts`; fill remaining slots with unread published posts, cycling the available pool only when fewer than 18 remain. Hide the section when no unread posts remain. New published posts take filler slots naturally. Tabs are real links to category pages (work without JavaScript). |
+| 5 | Latest articles | Three-column cards across the 1068 px inner homepage width at 1280 px: each card 329×165 px image, 40 px column and row gaps. At 640–1023 px use two columns; below 640 px use one. Card order: image, 20 px bold title (2 lines max), category badge, author, date, comment-count badge, then 3-line excerpt. Category badge is a dark rounded label in the metadata line under the title. 10 posts per page. Do not show view counts on homepage cards. |
 | 6 | Native ad row | Slot `home_feed`, after every 8th item, labelled “Advertisement”, space reserved (8.12). |
+| 6a | Promoted content | Slot `home_sidebar` below Stay Connected, labelled “Advertisement”, 324×250 px reserved area below 1280 px and up to 403×250 px at wider desktop; omitted until configured (8.12). |
 | 7 | Load more | Loads the next 10 rows via `/api/posts?page=2&category=…`. Also a normal link `?page=2` for crawlers and no-JS. |
-| 8 | Stay connected | Social links with “stay connected” on: icon, `followers_label` (typed by the owner, e.g. “52,142 Fans”) and a Like or Follow button that opens the profile. Hidden if none are set. |
-| 9 | Editor picks | 3 newest posts with `is_editor_pick`. |
-| 10 | Popular posts | Top 5 by views, toggle 7 days / 30 days (`post_daily_views`). Cached 1 hour. |
+| 8 | Stay connected | Social links with “stay connected” on: icon, `followers_label` (typed by the owner, e.g. “52,142 Fans”) and a Like or Follow link that opens the profile. At wide desktop, render configured profiles as three equal square tiles about 123×125 px. Hidden if none are set. |
+| 9 | Editor picks | 3 newest posts with `is_editor_pick`; sidebar width 324 px at 1280 px viewport, with 96×68 px thumbnails and title to the right. |
+| 10 | Popular posts | Top 5 by views over 7 days (`post_daily_views`); cached 1 hour. Render 96×68 px thumbnails and title to the right. The 7/30-day toggle remains deferred to M6. |
 | 11 | Popular categories | Top 8 categories by published post count, with counts. |
 | 12 | Footer | Logo, short About text and contact email, “Follow us” icons (`show_in_footer`), the `footer` menu (Home, Saved stories, Surprise me, Join Us, DMCA, Terms), Cookie settings link, copyright. |
 | 13 | Consent banner | Slim bottom bar until the reader chooses. Ads and cookie-based analytics wait for consent where the law requires it (11.4). |
+
+**Desktop reference geometry (updated 12 Nov 2026):** At a 1463 px viewport, use a centered homepage/header shell up to 1429 px wide with 48 px side padding (about 1333 px inner content). In the top grid, target an 870 px reading column, 60 px gap, and 403 px sidebar. The two People Also Read lead cards share the reading column equally with a 60 px gap and use 2:1 covers; compact rows use 120×85 px thumbnails. At widths from 1024 px through 1279 px, retain the existing 324 px sidebar and 48 px gap so lead cards remain usable. Keep the existing stacked mobile/tablet layout below 1024 px. Social cards may use the larger square-tile treatment when configured; do not invent profiles or follower counts. Promoted content remains consent-gated and appears only when configured.
 
 **Empty state:** no posts yet → “No stories yet.” **SEO:** title = site name + tagline; canonical `/`; `?page=N` has a self canonical.
 
@@ -587,7 +616,7 @@ Numbered circles on each wireframe match the numbered rows under it. Sketches sh
 | # | Element | Behavior and rules |
 | --- | --- | --- |
 | 1 | About Us text | `/about-us`. Story, mission, image. The owner edits it in A8. |
-| 2 | Meet the team | Authors with “show on About page” on (avatar, name, link to their author page), plus “Follow us” icons. |
+| 2 | Meet the team | Authors with `show_on_about` on (avatar, name, link to their author page), plus “Follow us” icons. |
 | 3 | Business details | `/contact-us`. Business name, address and email come from `site_settings.general`. |
 | 4 | Type switch | “I want to: Send a message / Send a story”. Two radio options; `?type=story` in the address pre-selects the story option. Works without JavaScript (the story box is simply always visible). |
 | 5 | Form fields | Name, email, subject (or story title), message (or story text). One form posts to `POST /contact-us` with a `type` field (8.10). |
@@ -650,7 +679,7 @@ Numbered circles on each wireframe match the numbered rows under it. Sketches sh
 | 1 | Sidebar | Posts, Media and Inbox (Comments and Stories tabs) for everyone. Pages, Team, Settings, Audit log and Inbox → Messages are owner only: hidden for editors and also blocked on the server. |
 | 2 | Stat cards | Published, In review, Drafts, Views in the last 7 days. Editors see counts for their own posts only. |
 | 3 | New post | Creates an empty draft and opens the editor. |
-| 4 | Tabs and search | Filter by status; search by title. 20 rows per page, newest updated first. |
+| 4 | Tabs and search | Filter by status; search by title. After 2 typed characters, show up to 8 permitted post suggestions after a 250 ms debounce. Keyboard arrows move through suggestions, Enter chooses, and Esc closes them. Choosing one filters the table to that post. Plain form submission works without JavaScript. 20 rows per page, newest updated first. |
 | 5 | Posts table | Title, author, status badge, Blogger badge, last updated, views (7 days), actions: Edit, Preview, Archive (owner), Delete (drafts). |
 | 6 | Badges | Status: Draft, In review, Scheduled, Published, Archived. Blogger: Synced, Pending, Failed, or a dash when not applicable. |
 | 7 | Alert banners | Owner only. Red: “n posts failed to sync to Blogger. Retry all” (also shown if the Blogger connection needs reconnecting). Yellow: counts of posts in review, comments to moderate and new submissions, each linking to its page. |
@@ -664,18 +693,22 @@ Numbered circles on each wireframe match the numbered rows under it. Sketches sh
 | # | Element | Behavior and rules |
 | --- | --- | --- |
 | 1 | Title | Large input. Required. Max 120 characters. The slug is generated from it. |
-| 2 | Toolbar | Bold, italic, H2, H3, quote, bullet and numbered lists, link, image (from the media library), table. No H1. |
-| 3 | Body | Quill editor (self-hosted, vanilla JavaScript). Content is sanitized again on the server on every save (8.3). |
+| 2 | Toolbar | Bold, italic, H2, H3, quote, bullet and numbered lists, link, image (from the media library). No H1. |
+| 3 | Body | Quill editor (self-hosted, vanilla JavaScript). Content is sanitized again on the server on every save (8.3). Body images are centered, fit the column, and have Small / Medium / Full width presets; height stays proportional. Preview shows each image's media credit as a caption. |
 | 4 | Status and autosave | Status pill plus “Saved 10:42”. Autosaves 10 seconds after the last change. Warns before leaving with unsaved changes. |
 | 5 | Action buttons | Preview, Save draft, and one primary button: “Submit for review” (editor), or “Publish” / “Schedule” (owner, or editor when allowed). |
 | 6 | Publish panel | Status, schedule date and time (shown in the owner's time zone, stored in UTC), and the publish checklist: title, slug, cover + alt text, category, body, meta description ≤ 160. Publish stays disabled until all are ready. |
 | 7 | Category and tags | Choose one category and up to 5 tags. Choose the author byline (default: you; the owner can pick any author). Owner only: “Featured” and “Editor pick” switches. “Allow comments” switch. |
 | 8 | Cover image | Pick from the library or upload. Alt text is required. |
 | 9 | SEO | Slug (editable until first publish), SEO title (≤ 60, default = title), meta description (≤ 160, default = excerpt), social image (default = cover), advanced canonical URL. Show live character counters. |
-| 10 | Revisions | List of saved versions with time and author. “Restore” creates a new revision; nothing is ever overwritten. |
+| 10 | Revisions | Collapsible panel, closed by default. Lists saved versions with time and author. “Restore” creates a new revision; nothing is ever overwritten. |
 | 11 | Blogger sync | Shows none / pending / synced / failed, the last error, and a Retry button for the owner. |
 
+The editor has a wide main column and a sticky sidebar with its own scroll area. The sidebar must independently scroll to its final panel at any viewport height. Publish and Category and tags are expanded by default; Cover, SEO, Revisions, and Blogger are collapsed. Blogger shows the persisted connection and post sync status, with a retry action for the owner when a sync failed.
+
 #### Field rules
+
+  The toolbar has no table button because the Quill core build does not provide one.
 
 | Field | Limit | Rule |
 | --- | --- | --- |
@@ -702,6 +735,7 @@ Numbered circles on each wireframe match the numbered rows under it. Sketches sh
 
 - On upload: verify the real file type from its first bytes, reject mismatches, resize to a maximum of 2000 px wide, convert to WebP, create 400, 800 and 1200 px versions, and store under a random file name.
 - Serve images with long cache headers and `srcset`.
+- After upload, clear the file input and preview, add the uploaded image at the top of the grid, and select it. Grid thumbnails use the 400 px variant with square dimensions, `object-fit: cover`, and lazy loading. The details preview uses `object-fit: contain` and is at most 240 px tall. Show clear errors for unsupported types, files over 8 MB, and upload limits.
 
 ### 7.5 A5 Team  ( /aadmin/team, owner only )
 
@@ -726,7 +760,7 @@ Numbered circles on each wireframe match the numbered rows under it. Sketches sh
 | # | Element | Behavior and rules |
 | --- | --- | --- |
 | 1 | Tabs | General, Social and menus (A11), Ads, Blogger, Rules. |
-| 2 | Ad slot row | Each slot (`home_feed`, `post_after_p3`, `post_end`, `post_sidebar`) has an ON/OFF switch, a name and a description. |
+| 2 | Ad slot row | Each slot (`home_feed`, `home_sidebar`, `post_after_p3`, `post_end`, `post_sidebar`) has an ON/OFF switch, a name and a description. |
 | 3 | Provider and IDs | Provider (AdSense or Custom), publisher ID (once, for all slots) and slot ID. “Custom” allows pasting an ad snippet; only the owner can edit it. |
 | 4 | Preview placeholder | Shows a grey placeholder in the slot on the public site for the owner only, so layout can be checked without loading real ads. |
 | 5 | Blogger connection | Connect, reconnect, disconnect. Shows the connected Google account and the chosen blog. Details in 8.4. |
@@ -801,7 +835,11 @@ Saving clears the cached header and footer. Changes are written to the audit log
 
 ### 7.12 A12 My profile  ( /aadmin/profile )
 
-Every signed-in user edits their own author profile: display name, short bio, avatar (from the media library) and “show on About page”. No wireframe: it is a plain form like the editor sidebar. The owner can edit any author in Team → Authors and create guest authors.
+Every signed-in user edits their own author profile: display name, short bio, avatar (from the media library) and `show_on_about`. No wireframe: it is a plain form like the editor sidebar. The owner can edit any author in Team → Authors and create guest authors. The checkbox stores to `authors.show_on_about` (default 0); the About page reads this column (6.6).
+
+### 7.13 A13 Categories  ( /aadmin/categories, owner only )
+
+The Categories page lists categories and lets the owner add or rename a category, change its unique slug, sort order, and “show in navigation” setting. Deletion is allowed only when no post uses the category; otherwise show a clear message. Record `category.create`, `category.update`, and `category.delete` in `audit_log`. The owner-only link appears in the admin sidebar.
 
 ## 8. Feature specifications
 
@@ -817,13 +855,14 @@ Every signed-in user edits their own author profile: display name, short bio, av
 | In review → Published | Owner | Sets `published_at`, clears the page cache, queues Blogger sync. |
 | In review → Draft | Owner | “Request changes” with an optional note shown to the editor. |
 | Draft → Published | Owner (editor only if allowed) | Same as above. |
+| Published → Published | Owner | Republishes the saved edits, keeps the original `published_at`, records a revision, and clears the page cache. |
 | Draft → Scheduled | Same as publish | Needs a future `scheduled_at`. The worker job runs every 5 minutes and publishes due posts. |
 | Published → Archived | Owner | Returns 404 on the site, leaves the sitemap, keeps the data. Blogger copy is reverted to draft (best effort). |
 | Delete | Editor (own), Owner | Drafts only, soft delete kept for 30 days. Published posts are archived, never deleted. |
 
-Editors can edit only their own posts that are in Draft status. A published post can be edited by the owner (and by editors when the setting is ON).
+Editors can edit only their own posts that are in Draft status. A published post can be edited by the owner (and by editors when the setting is ON). In user-facing role labels, show Owner as “Admin” and Editor as “Content Moderator”; do not rename stored role identifiers.
 
-- **Action names and permissions (1.5):** `submit` = editor or owner, own draft → in_review. `publish` = owner (editor only if `editors_can_publish` is on), from draft or in_review; “approve” is publish on an in_review post. `reject` (“Request changes”) = owner only, in_review → draft, optional note up to 500 characters in `review_note`. `archive` = owner only.
+- **Action names and permissions (1.5):** `submit` = editor or owner, own draft → in_review. `publish` = owner (editor only if `editors_can_publish` is on), from draft or in_review; the owner may also republish an already published post after saving edits, keeping its original `published_at`; “approve” is publish on an in_review post. `reject` (“Request changes”) = owner only, in_review → draft, optional note up to 500 characters in `review_note`. `archive` = owner only.
 
 ### 8.2 Editor behavior
 
@@ -852,11 +891,11 @@ Run on the server on every save, including autosave, before `content_html` is st
 
 Blogger is a mirror. The site's own database is the main copy, so writing is never lost if Google is slow or down.
 
-1. **Connect once (owner):** Settings → Blogger → Connect. Run a separate Google OAuth request for the Blogger scope with offline access. Encrypt the refresh token with AES-256-GCM using ENCRYPTION_KEY and store it in `integrations`. Let the owner pick the blog and store `blog_id`. Enable the Blogger API in the same Google Cloud project and add the scope to the consent screen. An “unverified app” warning for the owner is expected.
-2. **On publish:** first publish on the own site (this always succeeds). Then, if auto-sync is ON and Blogger is connected, set `blogger_sync_status = pending` and run the sync.
+1. **Connect once (owner):** Settings → Blogger → Connect. Run a separate Google OAuth request for the Blogger scope with offline access. The redirect URI is `${SITE_URL}/api/admin/blogger/callback` and must be registered exactly in the OAuth web client’s Authorized redirect URIs in Google Cloud. Encrypt the refresh token with AES-256-GCM using ENCRYPTION_KEY and store it in `integrations`. Let the owner pick the blog and store `blog_id`. Enable the Blogger API in the same Google Cloud project and add the scope to the consent screen. An “unverified app” warning for the owner is expected.
+2. **On publish:** first publish on the own site (this always succeeds). Then, if auto-sync is ON and Blogger is connected, set `blogger_sync_status = pending` and run the sync. The sync creates a Blogger post or updates the associated Blogger post; a stable ElatedQuest marker recovers an association after an interrupted request and prevents duplicate inserts. Posts already published before Blogger was connected are not backfilled automatically; the owner can select “Sync now” for an individual published post from the dashboard or post editor.
 3. **Sync action:** if `blogger_post_id` is empty, create the post (public, not draft); otherwise update it. Send title, sanitized HTML with a closing line “Originally published at {own URL}”, and labels (category and tags). On success store `blogger_post_id`, `blogger_url`, `synced`, `blogger_synced_at`.
 4. **On failure:** store `failed`, increase `blogger_attempts`, save a short error. The worker job every 15 minutes retries failed and pending posts, up to 5 attempts. The owner can click Retry at any time.
-5. **No duplicates:** always check `blogger_post_id` before creating, and lock the row (status update with a condition) so a double click or overlapping worker run cannot create two posts.
+5. **No duplicates:** always check `blogger_post_id` before creating and acquire a per-post MySQL advisory lock so a double click or overlapping worker run cannot create two posts. If a process exits unexpectedly, MySQL releases its lock; a retry searches the stable ElatedQuest marker before inserting, recovering a post created before an interrupted response.
 6. **Token problems:** if Google answers `invalid_grant`, set `needs_reconnect = true`, stop retrying and show the red banner to the owner.
 7. **Duplicate-content protection:** Google should rank your own site. In Blogger settings, turn on custom robots header tags and set posts to noindex (verify the option in Blogger's current settings), or accept the duplicate-content trade-off knowingly.
 
@@ -928,6 +967,7 @@ Ads must never distract from reading. Build one reusable `<AdSlot slot="…" />`
 | Slot key | Page | Position | Devices | Reserved size |
 | --- | --- | --- | --- | --- |
 | home_feed | Home, category | Every 8th card in the grid | All | Same as a card |
+| home_sidebar | Home | Below Stay Connected | All | 324×250 px |
 | post_after_p3 | Post | After paragraph 3 (if ≥ 6 paragraphs) | All | min-height 280 px |
 | post_end | Post | After the article | All | min-height 280 px |
 | post_sidebar | Post | Sticky sidebar | Desktop only | 300×250 |
@@ -1042,6 +1082,7 @@ Every admin route calls `requireRole()` itself. Every route that changes data ch
 | Method | Path | Role | Purpose |
 | --- | --- | --- | --- |
 | POST/PATCH | /api/admin/posts[/:id] | Editor+ | Create, autosave. Own posts for editors; `updated_at` conflict check. |
+| GET | /api/admin/posts/suggest?q= | Editor+ | Up to 8 title suggestions for posts visible to the current user; minimum 2 query characters. |
 | POST | /api/admin/posts/:id/submit \| publish \| reject \| archive | Editor+ / Owner | Lifecycle (8.1). Publish: owner, or editor if allowed. |
 | DELETE | /api/admin/posts/:id | Editor+ | Soft-delete a draft. |
 | POST | /api/admin/posts/:id/retry-blogger | Owner | Retry sync. |
@@ -1318,7 +1359,7 @@ Stop and ask if anything in the spec is unclear.
 
 ### M8 Ads
 
-**Build:** `AdSlot` partial and `ads.js`, four slots, Ads tab in Settings, placeholders for the owner, lazy loading, consent gating.
+**Build:** `AdSlot` partial and `ads.js`, five slots, Ads tab in Settings, placeholders for the owner, lazy loading, consent gating.
 
 **Done when:**
 
@@ -1397,7 +1438,7 @@ Tick every box before announcing the site.
 | Done | Reading experience and ads |
 | --- | --- |
 | ☐ | No popups anywhere. Every ad is labelled “Advertisement”. |
-| ☐ | Ads appear only in the four allowed slots; none on admin, search, 404 or legal pages. |
+| ☐ | Ads appear only in the five allowed slots; none on admin, search, 404 or legal pages. |
 | ☐ | CLS ≤ 0.1, LCP ≤ 2.5 s on mobile for the home page and a sample post. |
 | ☐ | No horizontal scrolling at 375 px width. Tap targets ≥ 44 px. |
 | ☐ | Related posts, Popular posts, Editor picks and “People also read…” show sensible results. |
@@ -1824,3 +1865,30 @@ CREATE TABLE IF NOT EXISTS rate_limits (
   KEY ix_rate_limits_window (window_start)
 ) ENGINE=InnoDB;
 ```
+
+## M4 implementation notes
+
+- Public styles are built into `public/css/public-site.css`, sourced from `base.css` and `public-*` CSS files only. The M4 brief names `/css/site.css` for the new public layout, but the existing `site.css` is shared by M0–M3 admin pages and contains admin styles. The build script excludes `public-*` files from the legacy admin bundle, while the public layout links only to the separate public bundle.
+- `PAGE_CACHE=off` bypasses the 60-second rendered public HTML cache and sends `Cache-Control: no-store`. If unset, rendered public HTML caching is on except in `NODE_ENV=development`, where it is off; `PAGE_CACHE=on` explicitly enables it in development.
+- Homepage pagination uses a centered outlined “Load more stories” anchor to the next numbered page and a “Previous” anchor on pages 2 and later. This replaces the M4 brief's plain Previous/Next presentation while retaining real page URLs and no-JavaScript operation.
+- The homepage shell is 1164 px wide at a 1280 px viewport, centered with 48 px inner padding. Its top content columns measure 696 px and 324 px with a 48 px gap. The top two lead cards split the 696 px column equally with a 48 px gap; at 1280 px each card is 324×163 px. The third featured item uses a 96×68 px compact image row.
+- Homepage latest articles span the full 1068 px inner shell and use three 329 px cards with 40 px gaps at 1280 px. Images use a 2:1 ratio. Cards place title first, then a category badge, author/date and comment count, then excerpt. View counts are omitted from homepage cards to match the reference metadata arrangement.
+- The shared public footer uses the reference's dark editorial layout: editor picks, popular posts and category counts across three columns when sidebar data exists, followed by the site blurb/contact, social links, footer menu and copyright. All values come from existing site and post services. No copied Auxx text, image, or logo is used.
+- Auxx was measured with Playwright at 1280 px: outer page shell 1164 px, inner width 1068 px, main column 696 px, sidebar 324 px, 48 px column gap, two 324×163 px lead cards, and three latest cards about 329×165 px with 40 px gaps. Elated Quest uses responsive proportions from these measurements.
+- People Also Read renders two lead cards and sixteen compact cards, cycling published candidates when fewer than 18 exist. Browser read-history filtering applies before filling; no unpublished post enters the public list.
+- M4’s referenced `src/middleware/rateLimit.js` does not exist in this repository. Search and view counting use additive site-module in-memory IP limiters; they do not change the existing admin write limiter.
+- The existing cache uses millisecond TTLs and M3 calls `invalidate(key)`. M4 preserves that API and TTL convention. Its `home`, `post:{slug}` and `site:` invalidation semantics additionally clear public rendered pages, related content and sidebar blocks; category and settings changes continue to use the existing invalidation function.
+- The site settings cache is permanent until it is invalidated. Category create, update and delete and site-settings saves reuse `invalidate("site:")` to refresh site data and affected public pages.
+- The mobile home shows Popular posts as a CSS scroll-snap row below 640 px. Category tabs, load-more behavior and the 7/30-day popularity toggle remain deferred to M6.
+- Post comment counts are plain text until M5. The post-page sidebar appears only at 1024 px and has no ad; ads are deferred to M8.
+- Related-post scoring fetches up to 60 candidates (same category or shared tags), fills from newest published posts when needed, caps shared-tag scoring at three tags and adds a 0–0.5 random tie-breaker. Related results are cached for one hour.
+- An author with no currently published posts returns 404. Author social links are omitted because authors have no social fields in the schema.
+- Search accepts 2–80 trimmed characters. Two-character searches use an escaped, parameterized title fallback when full-text search is unavailable or empty.
+- `/about-us` and `/contact-us` render their stored text only in M4. Their team row, forms, `/thank-you` and other reader interactions remain deferred to M6.
+- The public view counter is the sole public write route exempt from CSRF. It requires a same-origin `Origin` or `Referer` check plus a 60-per-minute IP limit; public forms remain outside M4.
+- The admin preview keeps its existing role and ownership checks, then renders the shared public post template with a Preview banner, `noindex`, and `no-store`. It does not emit the public view-counter feature marker.
+- The public view counter updates `post_daily_views` and `posts.view_count` in one UTC transaction. Its browser feature sends one request per post per browser session and keeps at most 200 IDs in `localStorage.readPosts`.
+- Story-received, ads, cookie controls, category tabs, and load-more controls depicted in wireframes are deferred to M6, M7, or M8 as listed in `docs/M4-wireframe-checklist.md`.
+- Public archive listings use separate count and joined-card queries; home and archive cards fetch author, category and cover media in each list query to avoid per-row lookups.
+- Search highlights only escaped title/snippet text by inserting `<mark>` after escaping. Two-character title fallback escapes backslash, `%` and `_` before binding the LIKE pattern.
+- The demo seed contains 14 varied outdoor, wildlife, photography and conservation stories dated across 60 days. It can only run against the development database name `elatedquest`; the current configured DB user lacks access to that database, so this run could not seed it.

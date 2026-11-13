@@ -1,0 +1,10 @@
+<article class="public-home-lead">
+  <a class="public-home-lead__image-link" href="/{{ post.slug }}" aria-label="Read {{ post.title }}">
+    {% if post.cover_url %}<img data-card-image src="{{ post.cover_url }}"{% if post.cover_srcset %} srcset="{{ post.cover_srcset }}" sizes="(min-width: 1024px) 324px, 100vw"{% endif %} width="{{ post.cover_width or 800 }}" height="{{ post.cover_height or 450 }}" alt="{{ post.cover_alt or '' }}" loading="lazy">{% else %}<span class="public-card__placeholder" aria-hidden="true"></span>{% endif %}
+  </a>
+  <div class="public-home-lead__body">
+    <h2><a href="/{{ post.slug }}">{{ post.title }}</a></h2>
+    <p class="public-home-lead__meta">{% if post.author_name %}<strong class="public-home-lead__author">{{ post.author_name }}</strong>{% endif %}{% if post.author_name and post.published_at %}<span class="public-home-lead__separator">–</span>{% endif %}{% if post.published_at %}<time class="public-home-lead__date" datetime="{{ post.published_at | dateIso }}">{{ post.published_at | formatDate(site.general.timezone) }}</time>{% endif %}<a class="public-home-lead__comments" href="/{{ post.slug }}#comments" aria-label="{{ post.comment_count or 0 }} comments">{{ post.comment_count or 0 }}</a></p>
+    {% if post.excerpt %}<p class="public-home-lead__excerpt">{{ post.excerpt }}</p>{% endif %}
+  </div>
+</article>

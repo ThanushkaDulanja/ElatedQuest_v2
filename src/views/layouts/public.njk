@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{{ description or site.general.tagline }}">
+    <meta name="robots" content="{{ robots or 'index,follow' }}">
+    <meta property="og:site_name" content="{{ site.general.siteName }}">
+    <meta property="og:type" content="{{ 'article' if post and not previewMode else 'website' }}">
+    <meta property="og:title" content="{{ title or site.general.siteName }}">
+    <meta property="og:description" content="{{ description or site.general.tagline }}">
+    {% if canonical %}<link rel="canonical" href="{{ canonical }}">{% endif %}
+    {% if canonical %}<meta property="og:url" content="{{ canonical }}">{% endif %}
+    {% if ogImage or site.general.socialImage %}<meta property="og:image" content="{{ ogImage or site.general.socialImage }}"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{{ ogImage or site.general.socialImage }}">{% else %}<meta name="twitter:card" content="summary">{% endif %}
+    <meta name="twitter:title" content="{{ title or site.general.siteName }}">
+    <meta name="twitter:description" content="{{ description or site.general.tagline }}">
+    {% for schema in structuredData or [] %}<script nonce="{{ cspNonce }}" type="application/ld+json">{{ schema | safe }}</script>{% endfor %}
+    {% if plausibleDomain %}<script defer data-domain="{{ plausibleDomain }}" src="https://plausible.io/js/script.js"></script>{% endif %}
+    {% include "partials/sentry.njk" %}
+    {% if prevUrl %}<link rel="prev" href="{{ prevUrl }}">{% endif %}
+    {% if nextUrl %}<link rel="next" href="{{ nextUrl }}">{% endif %}
+    <title>{{ title or site.general.siteName }}</title>
+    <link rel="stylesheet" href="/css/public-site.css">
+    <script type="module" src="/js/main.js"></script>
+  </head>
+  <body class="public-site{% if isHomePage %} public-home-page{% endif %}">
+    <a class="public-skip-link" href="#main-content">Skip to content</a>
+    {% include "partials/public/topbar.njk" %}
+    {% include "partials/public/header.njk" %}
+    <main id="main-content" class="public-main">
+      {% block content %}{% endblock %}
+    </main>
+    {% include "partials/public/footer.njk" %}
+    {% if ads and ads.enabled %}{% include "partials/public/consent.njk" %}{% endif %}
+  </body>
+</html>

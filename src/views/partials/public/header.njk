@@ -1,0 +1,27 @@
+<header class="public-header">
+  <div class="public-container public-header__inner">
+    <details class="public-mobile-menu">
+      <summary aria-label="Open menu"><span aria-hidden="true">☰</span><span class="public-visually-hidden">Menu</span></summary>
+      <nav aria-label="Mobile navigation">
+        {% for item in site.navCategories %}<a href="/category/{{ item.slug }}">{{ item.name }}</a>{% endfor %}
+        {% if site.moreCategories.length %}<details class="public-more"><summary>More categories</summary>{% for item in site.moreCategories %}<a href="/category/{{ item.slug }}">{{ item.name }}</a>{% endfor %}</details>{% endif %}
+        {% for item in site.headerMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}
+        <form action="/search" method="get" role="search"><label class="public-visually-hidden" for="mobile-search">Search stories</label><input id="mobile-search" name="q" type="search" placeholder="Search stories"><button type="submit" aria-label="Search">Search</button></form>
+        {% for item in site.topMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}
+      </nav>
+    </details>
+    <a class="public-brand" href="/">{{ site.general.siteName }}</a>
+    <nav class="public-nav{% if isHomePage %} public-nav--home{% endif %}" aria-label="{% if isHomePage %}Site links{% else %}Categories{% endif %}">
+      {% if isHomePage %}
+        {% if site.topMenu.length %}{% for item in site.topMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}
+        {% else %}<a href="/image-use-policy">Image Use Policy</a><a href="/privacy-policy">Privacy Policy</a><a href="/about-us">About Us</a><a href="/contact-us">Contact Us</a>{% endif %}
+      {% else %}
+        {% for item in site.navCategories %}<a href="/category/{{ item.slug }}"{% if currentCategorySlug == item.slug %} aria-current="page"{% endif %}>{{ item.name }}</a>{% endfor %}
+        {% for item in site.headerMenu %}<a href="{{ item.href }}"{% if item.newTab %} target="_blank" rel="noopener"{% endif %}>{{ item.label }}</a>{% endfor %}
+        {% if site.moreCategories.length %}<details class="public-more"><summary>More</summary><div>{% for item in site.moreCategories %}<a href="/category/{{ item.slug }}">{{ item.name }}</a>{% endfor %}</div></details>{% endif %}
+      {% endif %}
+    </nav>
+    <a class="public-search-link" href="/search" aria-label="Search stories"><span aria-hidden="true">⌕</span></a>
+    <div class="public-header-action">{% include "slots/header_action.njk" ignore missing %}</div>
+  </div>
+</header>

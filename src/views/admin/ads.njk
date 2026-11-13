@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>{{ title }} · ElatedQuest Admin</title><link rel="stylesheet" href="/css/site.css"></head>
+<body class="admin-shell"><header class="admin-header"><a class="admin-brand" href="/aadmin">ElatedQuest Admin</a><div class="admin-header__account"><span class="role-badge role-badge--{{ user.role }}">{{ user.role | roleLabel }}</span><span>{{ user.display_name or user.email }}</span><form action="/auth/sign-out" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Sign out</button></form></div></header>
+<div class="admin-layout">{% include "admin/_sidebar.njk" %}<main class="admin-main" id="main-content"><div class="admin-page__heading"><p><a href="/aadmin/settings">Settings</a></p><h1>Ads</h1><p>Control placements. Ads load only after a reader accepts them.</p></div>
+<section class="admin-panel admin-ads-panel">
+  <form action="/api/admin/settings/ads" method="post">
+    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+    <label class="settings-check-row"><input type="checkbox" name="adsEnabled" {% if ads.enabled %}checked{% endif %}> Enable advertisements</label>
+    <label class="field field--md">AdSense publisher ID <input name="publisherId" maxlength="20" pattern="pub-[0-9]{16}" value="{{ ads.publisherId or '' }}" placeholder="pub-0000000000000000"><span class="field__help">Required for AdSense slots. Google-certified CMP is still required for personalized ads in the EEA, UK and Switzerland.</span></label>
+{% for row in slotRows %}
+{% set slotId = row.slotId %}{% set slot = row.slot %}
+    <fieldset class="admin-ads-slot"><legend>{{ row.label }}</legend><p>{{ row.size }}</p>
+      <label class="settings-check-row"><input type="checkbox" name="{{ slotId }}_enabled" {% if slot.enabled %}checked{% endif %}> Enable this slot</label>
+      <label class="field field--sm">Provider <select name="{{ slotId }}_provider"><option value="adsense" {% if slot.provider != 'custom' %}selected{% endif %}>Google AdSense</option><option value="custom" {% if slot.provider == 'custom' %}selected{% endif %}>Custom HTML</option></select></label>
+      <label class="field field--sm">AdSense slot ID <input name="{{ slotId }}_slotId" maxlength="40" value="{{ slot.slotId or '' }}"></label>
+      <label class="field field--full">Custom HTML snippet <textarea name="{{ slotId }}_customHtml" maxlength="5000" rows="5">{{ slot.customHtml or '' }}</textarea><span class="field__help">Scripts, frames, event handlers and unsafe URLs are removed before display.</span></label>
+    </fieldset>
+    {% endfor %}
+    <button class="btn btn--primary" type="submit">Save ad settings</button>
+  </form>
+</section></main></div></body></html>

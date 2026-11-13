@@ -281,6 +281,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
 
 -- ---------------------------------------------------------------------
 -- 4. Site structure and settings (editable by the owner, no code change)
+-- Starter static page copy is loaded separately by database/seed.sql and can be edited at /aadmin/pages.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pages (
   id            BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

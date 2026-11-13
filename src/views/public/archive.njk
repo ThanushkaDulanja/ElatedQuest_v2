@@ -1,0 +1,15 @@
+{% extends "layouts/public.njk" %}
+{% block content %}
+<div class="public-container">
+  {% if kind == "author" %}
+    <header class="public-author-profile">
+      {% if record.avatar_url %}<img src="{{ record.avatar_url }}" width="96" height="96" alt="">{% else %}<span class="public-author-box__initials" aria-hidden="true">{{ record.initials }}</span>{% endif %}
+      <div><h1>{{ record.name }}</h1><p>{{ count }} stories</p>{% if record.bio %}<p>{{ record.bio }}</p>{% endif %}</div>
+    </header>
+  {% else %}
+    <header class="public-archive-header"><h1>{{ record.name }}</h1>{% if kind == "category" and record.description %}<p>{{ record.description }}</p>{% endif %}<p>{{ count }} stories</p></header>
+  {% endif %}
+  {% if posts.length %}<div class="public-card-grid">{% for post in posts %}{% include "partials/public/card.njk" %}{% if kind == "category" and loop.index % 8 == 0 and ads.enabled and ads.slots.home_feed.enabled %}{% set adSlot = "home_feed" %}{% include "partials/public/ad-slot.njk" %}{% endif %}{% endfor %}</div>{% else %}<p class="public-empty-state">No stories yet.</p>{% endif %}
+  {% set pagePath = "/" + kind + "/" + record.slug %}{% include "partials/public/pagination.njk" %}
+</div>
+{% endblock %}

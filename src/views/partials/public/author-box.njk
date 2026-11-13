@@ -1,0 +1,4 @@
+<section class="public-author-box" aria-label="About the author">
+  {% if author.avatar_url %}<img src="{{ author.avatar_url }}" width="72" height="72" alt="">{% else %}<span class="public-author-box__initials" aria-hidden="true">{{ author.initials }}</span>{% endif %}
+  <div><h2>{{ author.display_name }}</h2>{% if author.bio %}<p>{{ author.bio }}</p>{% endif %}<a href="/author/{{ author.slug }}">View all stories by this author</a></div>
+</section>

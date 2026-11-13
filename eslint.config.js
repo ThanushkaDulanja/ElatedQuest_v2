@@ -15,7 +15,7 @@ const browserGlobals = {
 
 export default [
   {
-    ignores: ["node_modules/**", "public/css/site.css", "uploads/**"],
+    ignores: ["node_modules/**", "public/css/site.css", "public/vendor/**", "uploads/**"],
   },
   {
     files: ["**/*.js"],

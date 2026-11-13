@@ -9,7 +9,7 @@ import { pool } from "../../db/pool.js";
 import { createAuthRepository } from "./repository.js";
 import { createAuthService } from "./service.js";
 import { createAuthController } from "./controller.js";
-import { createRequireRole } from "./middleware.js";
+import { createRequireRole, createResolveCurrentUser } from "./middleware.js";
 import { registerRoutes } from "./routes.js";
 
 const MySQLStore = MySQLStoreFactory(session);
@@ -48,10 +48,11 @@ export function createAuthModule(dependencies = {}) {
     repository,
     dependencies.ownerEmail ?? env.ownerEmail,
   );
+  const resolveCurrentUser = createResolveCurrentUser(repository, dependencies.ownerEmail ?? env.ownerEmail);
   const csrf = doubleCsrf({
     getSecret: () => process.env.SESSION_SECRET,
     getSessionIdentifier: (request) => request.session.id,
-    getCsrfTokenFromRequest: (request) => request.body?._csrf,
+    getCsrfTokenFromRequest: (request) => request.get("x-csrf-token") ?? request.body?._csrf,
     cookieName: "elatedquest.csrf",
     cookieOptions: {
       httpOnly: true,
@@ -60,7 +61,7 @@ export function createAuthModule(dependencies = {}) {
       path: "/",
     },
   });
-  return { repository, service, controller, requireRole, csrf };
+  return { repository, service, controller, requireRole, resolveCurrentUser, csrf, emailer };
 }
 
 export function createSessionMiddleware({
@@ -102,7 +103,7 @@ export function createSessionMiddleware({
   });
 }
 
-function createEmailer() {
+export function createEmailer() {
   const transport = nodemailer.createTransport({
     host: env.smtp.host,
     port: env.smtp.port,
@@ -118,6 +119,26 @@ function createEmailer() {
         subject: "Your ElatedQuest sign-in link",
         text: `Use this one-time link to sign in. It expires in 15 minutes: ${link}`,
       });
+    },
+    async sendInviteNotice(email) {
+      await transport.sendMail({
+        from: env.smtp.from,
+        to: email,
+        subject: "You have been invited to ElatedQuest",
+        text: `You can now sign in at ${env.siteUrl}/aadmin/login.`,
+      });
+    },
+    async sendPostSubmittedNotice(email, title) {
+      await transport.sendMail({ from: env.smtp.from, to: email, subject: "A post is ready for review", text: `A post has been submitted for review: ${title}` });
+    },
+    async sendContactMessage(email, message) {
+      await transport.sendMail({ from: env.smtp.from, to: email, replyTo: message.email, subject: `Contact message${message.subject ? `: ${message.subject}` : ""}`, text: `From: ${message.name} <${message.email}>\n\n${message.message}` });
+    },
+    async sendStorySubmission(email, story) {
+      await transport.sendMail({ from: env.smtp.from, to: email, replyTo: story.email, subject: `Reader story: ${story.title}`, text: `From: ${story.name} <${story.email}>\nTitle: ${story.title}\n\n${story.body}\n\nLinks:\n${story.links.join("\n")}` });
+    },
+    async sendStoryReceipt(email, title) {
+      await transport.sendMail({ from: env.smtp.from, to: email, subject: "We received your story", text: `Thank you for sharing “${title}” with Elated Quest. The team will review your submission.` });
     },
   };
 }

@@ -1,0 +1,19 @@
+{% macro field(label, name, id='', size='full', type='text', value='', help='', required=false, placeholder='', control='input', rows=4) %}
+  <div class="field field--{{ size }}">
+    <label for="{{ id or name }}">{{ label }}</label>
+    {% if control == 'textarea' %}<textarea id="{{ id or name }}" name="{{ name }}" rows="{{ rows }}" placeholder="{{ placeholder }}"{% if required %} required{% endif %}>{{ value }}</textarea>
+    {% else %}<input id="{{ id or name }}" name="{{ name }}" type="{{ type }}" value="{{ value }}" placeholder="{{ placeholder }}"{% if required %} required{% endif %}>{% endif %}
+    {% if help %}<small class="field__help">{{ help }}</small>{% endif %}
+  </div>
+{% endmacro %}
+
+{% macro field_row() %}<div class="form-grid">{{ caller() }}</div>{% endmacro %}
+{% macro form_actions() %}<div class="form-actions">{{ caller() }}</div>{% endmacro %}
+{% macro check(label, name, id='', value='1', checked=false) %}<label class="check" for="{{ id or name }}"><input id="{{ id or name }}" name="{{ name }}" type="checkbox" value="{{ value }}"{% if checked %} checked{% endif %}>{{ label }}</label>{% endmacro %}
+{% macro page_header(title, description='') %}
+  <header class="admin-page__heading">
+    <div><h1>{{ title }}</h1>{% if description %}<p>{{ description }}</p>{% endif %}</div>
+    {% if caller is defined %}{{ caller() }}{% endif %}
+  </header>
+{% endmacro %}
+{% macro table_actions() %}<div class="table-actions">{{ caller() }}</div>{% endmacro %}

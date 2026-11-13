@@ -1,19 +1,68 @@
 :root {
   color-scheme: light;
-  --color-ink: #203047;
-  --color-muted: #5e6b7a;
+  --color-ink: #1f2937;
+  --color-muted: #4b5563;
   --color-paper: #ffffff;
-  --color-surface: #f2f5f8;
-  --color-accent: #496eb5;
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-6: 1.5rem;
-  --space-8: 2rem;
+  --color-surface: #f6f7f9;
+  --color-page-background: #f6f7f9;
+  --color-accent: #1d4ed8;
+  --color-accent-strong: #1e40af;
+  --color-primary: #1e40af;
+  --color-border: #d1d5db;
+  --color-success: #166534;
+  --color-warning: #8a5b00;
+  --color-danger: #b42318;
+  --color-sidebar: #16273c;
+  --color-sidebar-ink: #e8eff7;
+  --color-white: #ffffff;
+  --color-primary-text: #ffffff;
+  --color-link: #1d4ed8;
+  --color-status-draft-text: #374151;
+  --color-status-draft-bg: #e5e7eb;
+  --color-status-review-text: #713f12;
+  --color-status-review-bg: #fef3c7;
+  --color-status-published-text: #14532d;
+  --color-status-published-bg: #dcfce7;
+  --color-status-archived-text: #374151;
+  --color-status-archived-bg: #e5e7eb;
+  --color-status-active-text: #14532d;
+  --color-status-active-bg: #dcfce7;
+  --color-status-invited-text: #713f12;
+  --color-status-invited-bg: #fef3c7;
+  --color-status-disabled-text: #374151;
+  --color-status-disabled-bg: #e5e7eb;
+  --color-status-pending-text: #713f12;
+  --color-status-pending-bg: #fef3c7;
+  --color-status-approved-text: #14532d;
+  --color-status-approved-bg: #dcfce7;
+  --color-status-spam-text: #7f1d1d;
+  --color-status-spam-bg: #fee2e2;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
   --font-body: system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-size-body: 1rem;
+  --font-size-base: 14px;
+  --line-height-base: 1.45;
+  --font-size-small: 12px;
+  --font-size-label: 13px;
+  --font-size-table: 13.5px;
+  --font-size-button: 13.5px;
+  --font-size-h1: 22px;
+  --font-size-h2: 17px;
+  --font-size-h3: 15px;
+  --font-weight-label: 600;
+  --font-weight-button: 600;
+  --font-size-body: var(--font-size-base);
   --content-width: 72rem;
+  --radius-card: 6px;
+  --field-height: 36px;
+  --button-height: 36px;
+  --button-height-small: 30px;
+  --focus-ring-width: 2px;
+  --shadow-card: 0 0.5rem 1.5rem rgb(24 42 66 / 8%);
 }
 
 * {
@@ -30,7 +79,7 @@ html {
 body {
   margin: 0;
   font-size: var(--font-size-body);
-  line-height: 1.6;
+  line-height: var(--line-height-base);
 }
 
 a {
@@ -38,6 +87,6 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--color-accent);
+  outline-offset: 2px;
 }

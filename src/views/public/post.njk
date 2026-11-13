@@ -1,0 +1,47 @@
+{% extends "layouts/public.njk" %}
+{% block content %}
+<div class="public-container public-content-grid">
+  <div>
+    {% if previewMode %}<aside class="public-preview-banner" role="status">Preview · visible only to you</aside>{% endif %}
+    <article class="public-post" data-feature="progress-bar">
+      <progress class="public-progress-bar" max="100" value="0" aria-label="Reading progress"></progress>
+      {% if not previewMode %}<span class="public-visually-hidden" data-feature="view-counter" data-post-id="{{ post.id }}"></span>{% endif %}
+      <nav class="public-breadcrumb" aria-label="Breadcrumb"><ol><li><a href="/">Home</a></li>{% if post.category_name %}<li><a href="/category/{{ post.category_slug }}">{{ post.category_name }}</a></li>{% endif %}<li><span aria-current="page">{{ post.title }}</span></li></ol></nav>
+      <header class="public-post__header">
+        {% if post.category_name %}<a class="public-card__category" href="/category/{{ post.category_slug }}">{{ post.category_name }}</a>{% endif %}
+        <h1>{{ post.title }}</h1>
+        <p class="public-post__meta"><a href="/author/{{ post.author_slug }}">{{ post.author_name }}</a> · <time datetime="{{ post.published_at | dateIso }}">{{ post.published_at | formatDate(site.general.timezone) }}</time> · {{ post.reading_minutes }} min read · {{ post.view_count }} views · <a href="#comments">{{ post.comment_count }} comments</a></p>
+      </header>
+      {% if post.cover_url %}<figure class="public-post__cover"><img src="{{ post.cover_url }}"{% if post.cover_srcset %} srcset="{{ post.cover_srcset }}" sizes="(min-width: 1024px) 680px, 100vw"{% endif %} width="{{ post.cover_width or 1200 }}" height="{{ post.cover_height or 675 }}" alt="{{ post.cover_alt or '' }}" loading="eager">{% if post.cover_credit_text %}<figcaption>{% if coverCreditUrl %}<a href="{{ coverCreditUrl }}" rel="nofollow noopener">{{ post.cover_credit_text }}</a>{% else %}{{ post.cover_credit_text }}{% endif %}</figcaption>{% endif %}</figure>{% endif %}
+      {% if post.excerpt %}<p class="public-post-excerpt">{{ post.excerpt }}</p>{% endif %}
+      <div class="public-article-body">{{ content | safe }}{% if showPostAfterP3 %}{% set adSlot = "post_after_p3" %}{% include "partials/public/ad-slot.njk" %}{{ contentAfterP3 | safe }}{% endif %}</div>
+      <section class="public-post-actions" data-feature="save-share">
+        <section class="public-rating" id="rating" aria-labelledby="rating-heading"><h2 id="rating-heading">Rate this story</h2>{% if post.rating_count >= 3 %}<p data-rating-summary>{{ (post.rating_sum / post.rating_count) | round(1) }} / 5 · {{ post.rating_count }} votes</p>{% else %}<p data-rating-summary>Be the first to rate{% if post.rating_count %} · {{ post.rating_count }} votes{% endif %}</p>{% endif %}{% if ratingNotice %}<p role="status">Thanks for rating.</p>{% endif %}<form action="/api/posts/{{ post.id }}/rating" method="post" data-feature="rating"><input type="hidden" name="postSlug" value="{{ post.slug }}"><fieldset><legend>Your rating</legend>{% for star in [1,2,3,4,5] %}<label><input type="radio" name="stars" value="{{ star }}" required><span aria-label="{{ star }} star{% if star != 1 %}s{% endif %}">★</span></label>{% endfor %}</fieldset><button type="submit">Rate</button></form></section>
+        <nav class="public-share" aria-label="Share this story"><h2>Share</h2>{% for item in shareLinks %}{% if item.network == "copy" %}<button type="button" data-copy-link="{{ canonical }}">Copy link</button>{% else %}<a href="{{ item.href }}" target="_blank" rel="noopener" aria-label="Share on {{ item.network }}">{{ item.network | capitalize }}</a>{% endif %}{% endfor %}<button type="button" data-native-share data-title="{{ post.title }}" data-url="{{ canonical }}">More</button><button type="button" data-save-story="{{ post.id }}">Save story</button></nav>
+      </section>
+      {% if tags.length %}<nav class="public-tag-list" aria-label="Tags">{% for tag in tags %}<a href="/tag/{{ tag.slug }}">{{ tag.name }}</a>{% endfor %}</nav>{% endif %}
+      {% set author = author %}{% include "partials/public/author-box.njk" %}
+      <section class="public-comments" id="comments" aria-labelledby="comments-heading" data-feature="comments-list" data-post-id="{{ post.id }}" data-post-slug="{{ post.slug }}">
+        <h2 id="comments-heading">Comments ({{ post.comment_count or 0 }})</h2>
+        {% if commentNotice == "pending" %}<p role="status">Thanks. Your comment is awaiting moderation.</p>{% elif commentNotice == "approved" %}<p role="status">Thanks. Your comment was posted.</p>{% elif commentNotice == "error" %}<p role="status">Your comment could not be posted. Check the form and try again.</p>{% endif %}
+        {% if canComment %}<form class="public-comment-form" data-feature="comment-form" action="/api/posts/{{ post.id }}/comments" method="post">
+          <label>Name <input name="name" maxlength="80" required autocomplete="name"></label>
+          <label>Email <input name="email" type="email" maxlength="190" required autocomplete="email"><small>Your email will not be shown.</small></label>
+          <label>Comment <textarea name="body" minlength="2" maxlength="2000" required rows="5"></textarea></label>
+          <label class="public-comment-form__trap" aria-hidden="true">Website <input name="honeypot" tabindex="-1" autocomplete="off"></label>
+          <input type="hidden" name="elapsedMs" value="0">
+          <input type="hidden" name="parentId" value="">
+          <button type="submit">Post comment</button>
+        </form>{% else %}<p>Comments are closed.</p>{% endif %}
+        <form class="public-comment-sort" method="get" action="/{{ post.slug }}#comments"><label for="comment-sort">Sort</label><select id="comment-sort" name="commentSort"><option value="newest"{% if commentSort == "newest" %} selected{% endif %}>Newest</option><option value="oldest"{% if commentSort == "oldest" %} selected{% endif %}>Oldest</option><option value="voted"{% if commentSort == "voted" %} selected{% endif %}>Most voted</option></select><button type="submit">Apply</button></form>
+        <ol class="public-comment-list">{% for comment in comments %}<li class="public-comment" id="comment-{{ comment.id }}"><span class="public-comment__avatar" aria-hidden="true">{{ comment.author_initials }}</span><div><p class="public-comment__meta"><strong>{{ comment.author_name }}</strong>{% if comment.is_staff %}<span class="public-comment__staff">STAFF</span>{% endif %} · <time datetime="{{ comment.created_at | dateIso }}">{{ comment.created_at | formatDate(site.general.timezone) }}</time></p><p class="public-comment__body">{{ comment.body }}</p><p class="public-comment__votes">Score: {{ comment.vote_score }}</p><form class="public-comment__vote" action="/api/comments/{{ comment.id }}/vote" method="post"><input type="hidden" name="postSlug" value="{{ post.slug }}"><button name="value" value="1" type="submit" aria-label="Upvote">▲</button><button name="value" value="-1" type="submit" aria-label="Downvote">▼</button></form>{% if canComment %}<details class="public-comment__reply"><summary>Reply</summary><form class="public-comment-form" data-feature="comment-form" action="/api/posts/{{ post.id }}/comments" method="post"><input type="hidden" name="parentId" value="{{ comment.id }}"><input type="hidden" name="elapsedMs" value="0"><input type="hidden" name="honeypot" value=""><input type="hidden" name="reply" value="1"><label>Name <input name="name" maxlength="80" required autocomplete="name"></label><label>Email <input name="email" type="email" maxlength="190" required autocomplete="email"><small>Your email will not be shown.</small></label><label>Reply <textarea name="body" minlength="2" maxlength="2000" required rows="3"></textarea></label><button type="submit">Post reply</button></form></details>{% endif %}</div></li>{% endfor %}</ol>
+        {% if comments.length >= 10 %}<a class="public-comments__more" href="/api/posts/{{ post.id }}/comments?sort={{ commentSort or 'newest' }}&amp;offset=10">Load more comments</a>{% endif %}
+      </section>
+      {% include "slots/post_end.njk" ignore missing %}
+      {% if related.length %}<section class="public-related" aria-labelledby="related-heading"><h2 id="related-heading">You may also like</h2><div class="public-card-grid">{% for post in related %}{% include "partials/public/card.njk" %}{% endfor %}</div></section>{% endif %}
+    </article>
+  </div>
+  {% if ads and ads.enabled and ads.slots.post_end.enabled %}{% set adSlot = "post_end" %}{% include "partials/public/ad-slot.njk" %}{% endif %}
+  {% include "partials/public/sidebar.njk" %}
+</div>
+{% endblock %}

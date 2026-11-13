@@ -1,0 +1,15 @@
+.table-wrap { max-width: 100%; overflow-x: auto; overscroll-behavior-inline: contain; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-white); }
+.admin-table { width: 100%; min-width: 42rem; border-collapse: collapse; color: var(--color-ink); font-size: var(--font-size-table); text-align: left; }
+.admin-table th,
+.admin-table td { padding: var(--space-3); vertical-align: middle; border-bottom: 1px solid var(--color-border); }
+.admin-table th { color: var(--color-ink); font-size: var(--font-size-table); background: #f2f5f8; white-space: nowrap; }
+.admin-table .status-badge { white-space: nowrap; }
+.admin-table tr:last-child td { border-bottom: 0; }
+.table-actions { display: inline-flex; flex-flow: row nowrap; align-items: center; gap: 6px; white-space: nowrap; }
+.table-actions form { display: inline-flex; flex: 0 0 auto; margin: 0; }
+.table-actions .btn { flex: 0 0 auto; min-height: var(--button-height-small); }
+.status-badge { display: inline-flex; align-items: center; justify-content: center; width: fit-content; padding: 2px 8px; border: 1px solid transparent; border-radius: 999px; font-size: var(--font-size-small); font-weight: 600; white-space: nowrap; }
+.status-badge--draft, .status-badge--archived, .status-badge--disabled { color: var(--color-status-draft-text); background: var(--color-status-draft-bg); }
+.status-badge--in_review, .status-badge--invited, .status-badge--pending, .status-badge--scheduled { color: var(--color-status-review-text); background: var(--color-status-review-bg); }
+.status-badge--published, .status-badge--active, .status-badge--approved, .status-badge--synced { color: var(--color-status-published-text); background: var(--color-status-published-bg); }
+.status-badge--spam, .status-badge--failed { color: var(--color-status-spam-text); background: var(--color-status-spam-bg); }

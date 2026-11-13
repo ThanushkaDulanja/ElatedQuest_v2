@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Media library · ElatedQuest Admin</title>
+  <link rel="stylesheet" href="/css/site.css">
+  {% include "partials/sentry.njk" %}
+  <script type="module" src="/js/main.js"></script>
+</head>
+<body class="admin-shell">
+  <header class="admin-header">
+    <a class="admin-brand" href="/aadmin">ElatedQuest Admin</a>
+    <div class="admin-header__account">
+      <span class="role-badge role-badge--{{ user.role }}">{{ user.role | roleLabel }}</span>
+      <span>{{ user.display_name or user.email }}</span>
+      <form action="/auth/sign-out" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Sign out</button></form>
+    </div>
+  </header>
+  <div class="admin-layout">
+    {% include "admin/_sidebar.njk" %}
+    <main class="admin-main">
+      <div class="admin-page__heading"><h1>Media library</h1></div>
+      <section class="media-library" data-feature="media-library">
+        <p data-media-message class="flash-message flash-message--error" role="alert" hidden></p>
+        {% if success %}<p class="flash-message" role="status">{{ success }}</p>{% endif %}
+        <div class="media-library__layout">
+          <div class="media-library__main">
+            <form class="media-upload" data-upload-form action="/api/admin/media" method="post" enctype="multipart/form-data">
+              <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+              <label class="media-upload__drop-zone" data-drop-zone for="media-file"><strong>Drop images here or click to choose</strong><span>JPG, PNG, WebP or GIF · maximum 8 MB</span><input id="media-file" type="file" name="image" accept="image/jpeg,image/png,image/webp,image/gif" required></label>
+              <div class="media-upload__preview" data-upload-preview hidden><img src="" alt=""><span data-upload-preview-name></span></div>
+              <button class="btn btn--primary" type="submit">Upload image</button>
+            </form>
+            <div class="media-grid" aria-label="Images">
+              {% for item in media %}
+              <button class="btn btn--secondary media-card{% if loop.first %} media-card--latest{% endif %}" type="button" data-media-card data-id="{{ item.id }}" data-url="{{ item.url }}" data-file-name="{{ item.file_name }}" data-size="{{ item.size_bytes }}" data-width="{{ item.width }}" data-height="{{ item.height }}" data-alt="{{ item.alt_text or '' }}" data-credit="{{ item.credit_text or '' }}" data-credit-url="{{ item.credit_url or '' }}" data-uses="{{ item.used_count }}" data-usage-labels="{{ item.usage_labels }}"><img src="{{ item.thumbnail_url }}" alt="{{ item.alt_text or 'Image without alt text' }}" width="400" height="400" loading="lazy">{% if item.no_alt %}<span class="no-alt-badge">no alt</span>{% endif %}<span class="media-card__name">{{ item.file_name }}</span></button>
+              {% else %}<p class="admin-empty-state">No images uploaded yet.</p>{% endfor %}
+            </div>
+          </div>
+          <aside class="media-details" data-media-detail-panel hidden>
+            <h2>Image details</h2>
+            <img class="media-details__preview" data-detail-image src="" alt="">
+            <form id="media-details-form" data-media-details data-ajax action="/api/admin/media/0" method="post">
+              <input type="hidden" name="_csrf" value="{{ csrfToken }}"><input type="hidden" name="media_id" value="">
+              <div class="field field--full"><label>Alt text <span>(required for post images)</span><textarea name="alt_text" maxlength="255"></textarea></label></div>
+              <div class="field field--full"><label>Credit text<textarea name="credit_text" maxlength="255"></textarea></label></div>
+              <div class="field field--full"><label>Credit link<input type="url" name="credit_url" placeholder="https://"></label></div>
+            </form>
+            <p class="media-details__file"><span data-detail-name></span> · <span data-detail-dimensions></span> · <span data-detail-size></span></p>
+            <p class="media-details__uses" data-detail-uses></p>
+            <p class="media-details__usage-list" data-detail-use-list></p>
+            <div class="media-details__actions">
+              <button class="btn btn--primary btn--small" type="submit" form="media-details-form">Save details</button>
+              <button class="btn btn--secondary btn--small" type="button" data-copy-url>Copy URL</button>
+              <input type="text" data-copy-fallback aria-label="Image URL" readonly hidden>
+              {% if user.role == 'owner' %}<form data-media-delete data-ajax action="/api/admin/media/0/delete" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--danger btn--small" type="submit" disabled>Delete</button></form>{% endif %}
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

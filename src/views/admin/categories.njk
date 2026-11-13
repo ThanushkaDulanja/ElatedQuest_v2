@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Categories · ElatedQuest Admin</title>
+  <link rel="stylesheet" href="/css/site.css">
+  {% include "partials/sentry.njk" %}
+  <script type="module" src="/js/main.js"></script>
+</head>
+<body class="admin-shell">
+  <header class="admin-header">
+    <a class="admin-brand" href="/aadmin">ElatedQuest Admin</a>
+    <div class="admin-header__account">
+      <span class="role-badge role-badge--{{ user.role }}">{{ user.role | roleLabel }}</span>
+      <span>{{ user.display_name or user.email }}</span>
+      <form action="/auth/sign-out" method="post"><input type="hidden" name="_csrf" value="{{ csrfToken }}"><button class="btn btn--secondary btn--small" type="submit">Sign out</button></form>
+    </div>
+  </header>
+  <div class="admin-layout">
+    {% include "admin/_sidebar.njk" %}
+    <main class="admin-main" data-feature="category-form">
+      <div class="admin-page__heading"><h1>Categories</h1></div>
+      <section class="admin-card category-create" aria-labelledby="category-create-title">
+        <h2 id="category-create-title">Add category</h2>
+        <form class="category-form" action="/api/admin/categories" method="post">
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+          <label class="field field--md">Name<input name="name" maxlength="80" required data-category-name><small>Shown on post cards and category pages.</small></label>
+          <label class="field field--sm">Slug<input name="slug" maxlength="100" required data-category-slug><small>Appears in the category page address.</small></label>
+          <label class="category-form__wide field field--full">Description <span class="optional-label">(optional)</span><textarea name="description" maxlength="300"></textarea><small>Short description for the category page.</small></label>
+          <label class="field field--xs">Order<input type="number" name="sort_order" value="0"><small>Lower numbers appear first in navigation.</small></label>
+          <label class="checkbox-label"><input type="checkbox" name="show_in_nav" value="1" checked> In menu<small>Show this category in site navigation.</small></label>
+          <div class="category-form__actions form-actions"><button class="btn btn--primary" type="submit">Add category</button></div>
+        </form>
+      </section>
+      <section class="category-list" aria-labelledby="category-list-title">
+        <div class="admin-page__heading"><h2 id="category-list-title">Category list</h2></div>
+        <div class="table-wrap">
+          <table class="admin-table category-table">
+            <thead><tr><th>Name</th><th>Slug</th><th>Posts</th><th>In menu</th><th>Order</th><th>Actions</th></tr></thead>
+            <tbody>
+              {% for row in rows %}
+              <tr>
+                <td>{{ row.name }}</td>
+                <td><code>/category/{{ row.slug }}</code></td>
+                <td>{{ row.post_count }}</td>
+                <td>{% if row.show_in_nav %}Yes{% else %}No{% endif %}</td>
+                <td>{{ row.sort_order }}</td>
+                <td class="category-actions">
+                  <div class="table-actions">
+                  <details class="category-edit">
+                    <summary class="btn btn--secondary btn--small">Edit</summary>
+                    <form class="category-form category-form--edit" action="/api/admin/categories/{{ row.id }}" method="post">
+                      <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                      <label class="field field--md">Name<input name="name" maxlength="80" required value="{{ row.name }}" data-category-name><small>Shown on post cards and category pages.</small></label>
+                      <label class="field field--sm">Slug<input name="slug" maxlength="100" required value="{{ row.slug }}" data-category-slug><small>URL: <code>/category/{{ row.slug }}</code></small></label>
+                      <label class="category-form__wide field field--full">Description <span class="optional-label">(optional)</span><textarea name="description" maxlength="300">{{ row.description or '' }}</textarea><small>Short description for the category page.</small></label>
+                      <label class="field field--xs">Order<input type="number" name="sort_order" value="{{ row.sort_order }}"><small>Lower numbers appear first in navigation.</small></label>
+                      <label class="checkbox-label"><input type="checkbox" name="show_in_nav" value="1"{% if row.show_in_nav %} checked{% endif %}> In menu<small>Show this category in site navigation.</small></label>
+                      <div class="category-form__actions"><button class="btn btn--primary btn--small" type="submit">Save changes</button></div>
+                    </form>
+                  </details>
+                  <form class="category-delete" action="/api/admin/categories/{{ row.id }}/delete" method="post">
+                    <input type="hidden" name="_csrf" value="{{ csrfToken }}">
+                    <button class="btn btn--danger btn--small" type="submit"{% if row.post_count %} disabled aria-describedby="category-usage-{{ row.id }}"{% endif %}>Delete</button>
+                    {% if row.post_count %}<small class="category-delete__reason" id="category-usage-{{ row.id }}">Cannot delete: {{ row.post_count }} post{% if row.post_count != 1 %}s{% endif %} use this category.</small>{% endif %}
+                  </form>
+                  </div>
+                </td>
+              </tr>
+              {% else %}<tr><td colspan="6" class="admin-empty-state">No categories yet. Add the first category above.</td></tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

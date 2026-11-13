@@ -11,7 +11,7 @@ function validEnvironment() {
     DB_PORT: "3306",
     DB_USER: "test_user",
     DB_PASSWORD: "test_password",
-    DB_NAME: "elatedquest_test",
+    DB_NAME: "elatedquest_m0_test",
     SESSION_SECRET: "test_session_secret",
     HASH_SECRET: "test_hash_secret",
     OWNER_EMAIL: "owner@example.test",
@@ -33,7 +33,7 @@ function validEnvironment() {
 test("validates required environment settings without exposing their values", () => {
   const result = validateEnv(validEnvironment());
   assert.equal(result.port, 3000);
-  assert.equal(result.database.name, "elatedquest_test");
+  assert.equal(result.database.name, "elatedquest_m0_test");
   assert.equal(result.database.password, "test_password");
   assert.equal(result.encryptionKey.length, 32);
 });
@@ -55,4 +55,22 @@ test("rejects a malformed database port and encryption key", () => {
   environment.DB_PORT = "3306";
   environment.ENCRYPTION_KEY = "not-a-key";
   assert.throws(() => validateEnv(environment), /32-byte key/);
+});
+
+test("accepts hostname-only Plausible domains and rejects URL injection", () => {
+  const environment = validEnvironment();
+  environment.PLAUSIBLE_DOMAIN = "example.test,www.example.test";
+  assert.equal(validateEnv(environment).plausibleDomain, "example.test,www.example.test");
+  environment.PLAUSIBLE_DOMAIN = "https://evil.test/x";
+  assert.throws(() => validateEnv(environment), /PLAUSIBLE_DOMAIN must contain hostnames only/u);
+});
+
+test("accepts a public Sentry client DSN and rejects unsafe DSN URLs", () => {
+  const environment = validEnvironment();
+  environment.SENTRY_DSN = "https://public-key@errors.example.test/42";
+  assert.equal(validateEnv(environment).sentryDsn, environment.SENTRY_DSN);
+  environment.SENTRY_DSN = "javascript:alert(1)";
+  assert.throws(() => validateEnv(environment), /SENTRY_DSN must be an HTTP\(S\)/u);
+  environment.SENTRY_DSN = "https://key:secret@errors.example.test/42";
+  assert.throws(() => validateEnv(environment), /without a password/u);
 });

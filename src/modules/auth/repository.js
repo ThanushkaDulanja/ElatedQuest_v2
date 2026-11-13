@@ -18,14 +18,14 @@ export function createAuthRepository(database = pool) {
     },
     async provisionOwner(email, displayName) {
       await database.execute(
-        "INSERT INTO users (email, display_name, role, status, last_login_at) VALUES (?, ?, 'owner', 'active', CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE display_name = COALESCE(VALUES(display_name), display_name), role = 'owner', status = 'active', last_login_at = CURRENT_TIMESTAMP",
+        "INSERT INTO users (email, display_name, role, status, last_login_at) VALUES (?, ?, 'owner', 'active', CURRENT_TIMESTAMP) ON DUPLICATE KEY UPDATE display_name = COALESCE(display_name, VALUES(display_name)), role = 'owner', status = 'active', last_login_at = CURRENT_TIMESTAMP",
         [email, displayName],
       );
       return this.findUserByEmail(email);
     },
     async activateLogin(email, displayName) {
       const [result] = await database.execute(
-        "UPDATE users SET role = 'editor', status = 'active', display_name = COALESCE(?, display_name), last_login_at = CURRENT_TIMESTAMP WHERE email = ? AND status <> 'disabled'",
+        "UPDATE users SET role = 'editor', status = 'active', display_name = COALESCE(display_name, ?), last_login_at = CURRENT_TIMESTAMP WHERE email = ? AND status <> 'disabled'",
         [displayName, email],
       );
       if (!result.affectedRows) {
